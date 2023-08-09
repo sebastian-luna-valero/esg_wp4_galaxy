@@ -1,0 +1,50 @@
+---
+# create_user task
+user_name: galaxy
+user_uid: 1001
+user_comment: Tusd Service-Acct
+user_group_name: galaxy
+user_gid: 1001
+
+# Autofs
+autofs_service.install: true
+autofs_service.enable: true
+# nfs_kernel_tuning: true
+
+
+autofs_mount_points:
+  - data
+
+autofs_conf_files:
+  data:
+    - 0       -rw,hard,nosuid,nconnect=2      192.52.42.16:/nfs_shares/&
+    - 1       -rw,hard,nosuid,nconnect=2      192.52.42.16:/nfs_shares/&
+    - 2       -rw,hard,nosuid,nconnect=2      192.52.42.16:/nfs_shares/&
+    - 3       -rw,hard,nosuid,nconnect=2      192.52.42.16:/nfs_shares/&
+    - 4       -rw,hard,nosuid,nconnect=2      192.52.42.16:/nfs_shares/&
+    - 5       -rw,hard,nosuid,nconnect=2      192.52.42.16:/nfs_shares/&
+    - 6       -rw,hard,nosuid,nconnect=2      192.52.42.16:/nfs_shares/&
+    - 7       -rw,hard,nosuid,nconnect=2      192.52.42.16:/nfs_shares/&
+    - dp01    -rw,hard,nosuid,nconnect=2      192.52.42.16:/nfs_shares/&
+    - dnb01   -rw,hard,nosuid      192.52.42.16:/nfs_shares/&
+    - dnb02   -rw,hard,nosuid      192.52.42.16:/nfs_shares/&
+    - dnb03   -rw,hard,nosuid      192.52.42.16:/nfs_shares/&
+    - dnb04   -rw,hard,nosuid      192.52.42.16:/nfs_shares/&
+    - dnb05   -rw,hard,nosuid,nconnect=2      192.52.42.16:/nfs_shares/&
+    - dnb06   -rw,hard,nosuid,nconnect=2      192.52.42.16:/nfs_shares/&
+    - dnb07   -rw,hard,nosuid,nconnect=2      192.52.42.16:/nfs_shares/&
+    - dnb08   -rw,hard,nosuid,nconnect=2      192.52.42.16:/nfs_shares/&
+    - db      -rw,hard,nosuid      192.52.42.16:/nfs_shares/&
+    - gxtst   -rw,hard,nosuid,nconnect=2      192.52.42.16:/nfs_shares/&
+    - gxkey   -rw,hard,nosuid,nconnect=2      192.52.42.16:/nfs_shares/&
+    - jwd     -rw,hard,nosuid,nconnect=2      192.52.42.16:/nfs_shares/&
+    - jwd01   -rw,hard,nosuid      192.52.42.16:/nfs_shares/&
+
+# usegalaxy_eu.handy.os_setup
+## packages
+software_groups_to_install:
+    - editors
+    - utils
+
+## kernel_5
+kernel_5_package: kernel-ml

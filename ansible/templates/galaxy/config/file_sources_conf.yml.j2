@@ -1,0 +1,80 @@
+- type: dropbox
+  id: dropbox
+  label: Your Dropbox Files
+  doc: Your Dropbox files - configure an access token via the user preferences
+  accessToken: ${user.preferences['dropbox|access_token']}
+
+- type: webdav
+  id: b2drop
+  doc: B2Drop WebDAV server
+  url: https://b2drop.eudat.eu
+  root: /remote.php/dav/files/${user.preferences['b2drop|username']}/
+  use_temp_files: true
+  temp_path: /data/jwd04/tmp
+  login: ${user.preferences['b2drop|username']}
+  password: ${user.preferences['b2drop|password']}
+
+- type: webdav
+  id: generic_nextcloud
+  label: Nextcloud/ownCloud
+  doc: You personal Cloud files
+  writable: true
+  url: ${user.preferences['nextcloud|url']}
+  root: ${user.preferences['nextcloud|root']}
+  use_temp_files: true
+  temp_path: /data/jwd04/tmp
+  login: ${user.preferences['nextcloud|username']}
+  password: ${user.preferences['nextcloud|password']}
+
+- type: webdav
+  id: erga_nextcloud
+  label: ERGA Nextcloud
+  doc: ERGA Pilot storage provided by BSC
+  writable: true
+  url: 'https://ergapilot.bsc.es'
+  root: '/remote.php/webdav'
+  use_temp_files: true
+  temp_path: /data/jwd04/tmp
+  login: "{{ erga_nextcloud_login }}"
+  password: "{{ erga_nextcloud_password }}"
+  requires_groups: erga
+
+- type: ftp
+  id: ebi-ftp
+  label: "EBI FTP server"
+  doc: "European Bioinformatic Institute FTP server"
+  host: "ftp.ebi.ac.uk"
+  user: "anonymous"
+  passwd: ""
+  timeout: 10
+  port: 21
+
+- type: ftp
+  id: covid-monitoring
+  label: "SARS-CoV-2 result files"
+  doc: "SARS-CoV-2 variants and consensus sequences"
+  host: "xfer13.crg.eu"
+  user: "anonymous"
+  passwd: ""
+  timeout: 10
+  port: 21
+
+- type: ftp
+  id: ncbi-ftp
+  label: "NCBI FTP server"
+  doc: "NCBI FTP server"
+  host: "ftp.ncbi.nlm.nih.gov"
+  user: "anonymous"
+  passwd: ""
+  timeout: 10
+  port: 21
+
+- type: ftp
+  id: ensembl-ftp
+  label: "ENSEMBL FTP server"
+  doc: "ENSEMBL FTP server"
+  host: "ftp.ensemblgenomes.org/vol1/pub/"
+  user: "anonymous"
+  passwd: ""
+  timeout: 10
+  port: 21

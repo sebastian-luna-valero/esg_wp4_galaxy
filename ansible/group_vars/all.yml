@@ -1,0 +1,17 @@
+---
+# autofs_service:
+#   install: true
+#   enable: true
+
+# autofs_mount_points:
+#   - data
+#   - jwd
+#   - usrlocal
+
+# autofs_conf_files:
+#   data:
+#     - galaxy_data      -rw,hard,nosuid      192.52.43.77:/nfs_shares/&
+#   jwd:
+#     - jwd01            -rw,hard,nosuid      192.52.43.77:/nfs_shares/&
+#   usrlocal:
+#     - /usr/local/tools   -rw,hard,nosuid     192.52.43.77:/nfs_shares/tools

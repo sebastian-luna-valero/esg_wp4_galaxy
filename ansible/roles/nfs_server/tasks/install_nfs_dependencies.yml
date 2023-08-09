@@ -1,0 +1,13 @@
+---
+- name: Install NFS server dependencies
+  dnf:
+    name:
+      - nfs-utils
+      - nfs4-acl-tools
+    state: present
+
+- name: Start and enable nfs-server
+  systemd:
+    name: nfs-server
+    state: started
+    enabled: true

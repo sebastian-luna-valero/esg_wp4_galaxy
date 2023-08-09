@@ -1,0 +1,11 @@
+---
+- name: Configure NFS exports
+  lineinfile:
+    path: /etc/exports
+    line: "{{ item.path }} {{ item.host }}({{ item.options }})"
+    create: true
+    state: present
+  with_items: "{{ nfs_exports }}"
+  notify:
+    - Restart nfs-server
+    - Reload nfs exports

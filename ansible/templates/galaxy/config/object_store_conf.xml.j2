@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<object_store type="distributed" id="primary" order="0">
+    <backends search_for_missing="false">
+        <backend id="files1" type="disk" weight="2" store_by="id">
+            <files_dir path="/data/galaxy_data/galaxy_db/files"/>
+            <extra_dir type="temp" path="/data/galaxy_data/galaxy_db/tmp"/>
+            <extra_dir type="job_work" path="/data/jwd01/main"/>
+        </backend>
+    </backends>
+</object_store>

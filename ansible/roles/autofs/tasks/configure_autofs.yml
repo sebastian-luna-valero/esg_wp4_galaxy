@@ -1,0 +1,21 @@
+---
+- name: Copy main autofs file
+  template:
+    src: data.autofs.j2
+    dest: "/etc/auto.master.d/data.autofs"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Restart autofs
+
+- name: Copy mount point configuration file
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 0644
+  loop:
+    - { label: 'data', src: 'data.conf.j2', dest: '/etc/auto.data'}
+    - { label: 'usrlocal', src: 'usrlocal.conf.j2', dest: '/etc/auto.usrlocal'}
+  notify: Restart autofs

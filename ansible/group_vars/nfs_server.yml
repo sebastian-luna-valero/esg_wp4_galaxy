@@ -1,0 +1,59 @@
+---
+# Galaxy user and group details
+galaxy_group:
+  name: galaxy
+  gid: 999
+
+galaxy_user:
+  name: galaxy
+  create_home: true
+  home: /opt/galaxy
+  uid: 999
+  shell: /bin/bash
+
+# Role: usegalaxy_eu.handy.os_setup
+enable_hostname: true
+enable_powertools: true
+enable_remap_user: true
+enable_exclude_packages: true
+enable_pam_limits: true
+enable_install_software: true
+enable_create_user: true
+software_groups_to_install:
+  - admin
+  - debug
+  - editors
+  - pdf_export_deps
+  - services
+  - terminals
+  - utils
+handy_users:
+  - user_name: "{{ galaxy_user.name }}"
+    user_uid: "{{ galaxy_user.uid }}"
+    user_group: "{{ galaxy_group.name }}"
+    user_comment: "Galaxy useraccount"
+    user_create_home: "{{ galaxy_user.create_home }}"
+    user_home: "{{ galaxy_user.home }}"
+    user_shell: "{{ galaxy_user.shell }}"
+handy_groups:
+  - group_name: "{{ galaxy_group.name }}"
+    group_gid: "{{ galaxy_group.gid }}"
+
+# Role: nfs_server
+# NFS share root/master directory (where all the shares will be mounted as subdirectories)
+nfs_share_root: "/nfs_shares"
+
+# A dictionary of device names to format and mount and their mount points
+devices:
+  galaxy_data: /dev/vdb
+  jwd01: /dev/vdc
+  tools: /dev/vdd
+
+# NFS exports list
+# Here we need to export only the root NFS share because all the other shares are mounted as subdirectories of the root NFS share.
+# To make this work we need to set the "crossmnt" option in the NFS export options along with the "fsid=0" option.
+# Once this is exported we can simply use the "&" character to mount the subdirectories of the root NFS share using the AutoFS service.
+nfs_exports:
+  - path: "{{ nfs_share_root }}"
+    host: 192.52.32.0/20
+    options: "fsid=0,rw,no_root_squash,no_subtree_check,corssmnt"

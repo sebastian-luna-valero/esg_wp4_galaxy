@@ -1,0 +1,45 @@
+---
+- hosts: nfs_server
+  become: true
+  vars:
+    hostname: "{{ inventory_hostname }}"
+  collections:
+    - devsec.hardening
+  pre_tasks:
+    - name: Install Dependencies
+      package:
+        name:
+          [
+            "python3-virtualenv",
+            "python38",
+            "python38-devel",
+          ]
+      become: true
+    - name: Set default version of Python
+      alternatives:
+        name: python
+        path: /usr/bin/python3
+  post_tasks:
+    - name: Append some users to the systemd-journal group
+      user:
+        name: "{{ item }}"
+        groups: systemd-journal
+        append: true
+      loop:
+        - "{{ galaxy_user.name }}"
+    - name: Set authorized SSH key (galaxy user)
+      ansible.posix.authorized_key:
+        user: "{{ galaxy_user.name }}"
+        state: present
+        key: "{{ item }}"
+      loop:
+        - "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOBINXdjILF6x3WuppXyq6J2a2oSLR6waZ6txgjYJogHdIKPbI0TdReCv4EVxxYRY/NqGpHbjkqfRTsf2VgoU3U= mk@galaxy-mira"
+        - "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBACB5Q5blymkTIRSzVzXITOGvBuI7W0L9Ykwfz8LJGPraaGVPiezzFGvjhqwX+EyCqQPt7JprR5mimJRw/JN3nBXWAHjekvmB5FuILkk6m5fOiQJ5QhRMyQ5GfxODAvGbHpTuWHbYJLWD5fhcboKPxlXOWy4xY9kDZVuQvEKisNKYBsFLA== sanjay"
+        - "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBABRaLHL8mgW86rbtdUh6TY4rs7/la8hAGeSQ3jBF7LMwYZnbS32YDMYvDq3KgNu5WqSMFvkxNm3vfTAbd8CXBfakwDBFBaD9kO0b2t4/p4VoFUsd3B2OvmTR7Bsg7OxTGJJ7aUP/SzTg+Z4NzsmHwQ9h31gfI7n/buZD4S1edQke19Y6w== dominguj@informatik.uni-freiburg.de"
+  roles:
+    - geerlingguy.repo-epel
+    - usegalaxy_eu.handy.os_setup
+    - usegalaxy-eu.autoupdates
+    - influxdata.chrony
+    - nfs_server
+    - ssh-hardening

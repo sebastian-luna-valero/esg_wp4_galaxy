@@ -1,0 +1,13 @@
+# Data volumes
+{% if "data" in autofs_mount_points %}
+{% for row in autofs_conf_files.data %}
+{{ row }}
+{% endfor %}
+{% endif %}
+
+# JWD volumes
+{% if "jwd" in autofs_mount_points %}
+{% for row in autofs_conf_files.jwd %}
+{{ row }}
+{% endfor %}
+{% endif %}

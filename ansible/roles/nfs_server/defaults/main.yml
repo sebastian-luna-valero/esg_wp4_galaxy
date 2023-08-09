@@ -1,0 +1,18 @@
+---
+# NFS share root/master directory (where all the shares will be mounted as subdirectories)
+nfs_share_root: "/nfs_shares"
+
+# A dictionary of device names to format and mount and their mount points
+devices: {}
+
+# Example:
+# devices:
+  # galaxy_data: /dev/vdb
+  # jwd01: /dev/vdc
+  # tools: /dev/vdd
+
+# NFS exports list
+nfs_exports:
+  - path: "{{ nfs_share_root }}"
+    hosts: "*"
+    options: "fsid=0,rw,no_root_squash,no_subtree_check,corssmnt"

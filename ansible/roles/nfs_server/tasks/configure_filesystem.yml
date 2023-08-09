@@ -1,0 +1,51 @@
+---
+- name: Create a filesystem on the new partition using the devices dictionary
+  filesystem:
+    fstype: xfs
+    dev: "{{ item.value }}"
+  with_dict: "{{ devices }}"
+  when: devices is defined
+
+- name: Create a master/root directory to mount the volumes as subdirectories
+  file:
+    path: "{{ nfs_share_root }}"
+    state: directory
+    owner: galaxy
+    group: root
+    mode: 0775
+  when: devices is defined
+
+- name: Create the necessary directories using the devices dictionary to mount the volumes
+  file:
+    path: "{{ nfs_share_root }}/{{ item.key }}"
+    state: directory
+    owner: galaxy
+    group: root
+    mode: 0775
+  with_dict: "{{ devices }}"
+  when: devices is defined
+
+- name: Mount the volumes using the devices dictionary
+  mount:
+    path: "{{ nfs_share_root }}/{{ item.key }}"
+    src: "{{ item.value }}"
+    fstype: xfs
+    state: mounted
+  with_dict: "{{ devices }}"
+  when: devices is defined
+
+- name: update directory permissions
+  file:
+    path: "{{ nfs_share_root }}/{{ item.key }}"
+    owner: galaxy
+    group: root
+    mode: 0775
+  with_dict: "{{ devices }}"
+  when: devices is defined
+
+- name: Add the volumes to /etc/fstab using the devices dictionary to mount the volumes
+  lineinfile:
+    path: /etc/fstab
+    line: "{{ item.value }} {{ nfs_share_root }}/{{ item.key }} xfs defaults 0 0"
+  with_dict: "{{ devices }}"
+  when: devices is defined

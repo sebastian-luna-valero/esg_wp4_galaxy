@@ -1,0 +1,117 @@
+---
+- hosts: galaxy_instance
+  become: true
+  vars:
+    hostname: "{{ inventory_hostname }}"
+    nginx_conf_user: galaxy
+    server_names:
+      - "{{ hostname }}"
+  vars_files:
+    - group_vars/gxconfig.yml
+    # - secret_group_vars/pulsar.yml
+    - secret_group_vars/db-main.yml
+    - secret_group_vars/all.yml
+    - templates/galaxy/config/job_conf.yml
+  collections:
+    - devsec.hardening
+  handlers:
+    - name: Restart Galaxy
+      shell: |
+        echo 'Manual web handler restart required' && cd /opt/galaxy/ && source /opt/galaxy/.bashrc  && systemctl restart galaxy-handler@* && systemctl restart galaxy-workflow-scheduler@*
+  pre_tasks:
+    - name: Install Dependencies
+      package:
+        name:
+          [
+            "git",
+            "postgresql",
+            "python3-psycopg2",
+            "python3-virtualenv",
+            "bc",
+            "python38",
+            "python38-devel",
+          ]
+      become: true
+    - name: Set default version of Python
+      alternatives:
+        name: python
+        path: /usr/bin/python3
+    - name: Disable SELinux
+      selinux:
+        state: disabled
+  post_tasks:
+    - name: Append some users to the systemd-journal group
+      user:
+        name: "{{ item }}"
+        groups: systemd-journal
+        append: true
+      loop:
+        - "{{ galaxy_user.name }}"
+    - name: Set authorized SSH key (galaxy user)
+      ansible.posix.authorized_key:
+        user: "{{ galaxy_user.name }}"
+        state: present
+        key: "{{ item }}"
+      loop:
+        - "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOBINXdjILF6x3WuppXyq6J2a2oSLR6waZ6txgjYJogHdIKPbI0TdReCv4EVxxYRY/NqGpHbjkqfRTsf2VgoU3U= mk@galaxy-mira"
+        - "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBACB5Q5blymkTIRSzVzXITOGvBuI7W0L9Ykwfz8LJGPraaGVPiezzFGvjhqwX+EyCqQPt7JprR5mimJRw/JN3nBXWAHjekvmB5FuILkk6m5fOiQJ5QhRMyQ5GfxODAvGbHpTuWHbYJLWD5fhcboKPxlXOWy4xY9kDZVuQvEKisNKYBsFLA== sanjay"
+        - "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBABRaLHL8mgW86rbtdUh6TY4rs7/la8hAGeSQ3jBF7LMwYZnbS32YDMYvDq3KgNu5WqSMFvkxNm3vfTAbd8CXBfakwDBFBaD9kO0b2t4/p4VoFUsd3B2OvmTR7Bsg7OxTGJJ7aUP/SzTg+Z4NzsmHwQ9h31gfI7n/buZD4S1edQke19Y6w== dominguj@informatik.uni-freiburg.de"
+  roles:
+    - geerlingguy.repo-epel
+    - usegalaxy_eu.handy.os_setup
+    - usegalaxy-eu.autoupdates
+    - influxdata.chrony
+    - galaxyproject.cvmfs
+
+    # Setup Galaxy user
+    - role: galaxyproject.galaxy
+      vars:
+        galaxy_create_user: true
+        galaxy_manage_clone: false
+        galaxy_manage_download: false
+        galaxy_manage_existing: true
+        galaxy_manage_paths: true
+        galaxy_manage_static_setup: false
+        galaxy_manage_mutable_setup: false
+        galaxy_manage_database: false
+        galaxy_fetch_dependencies: false
+        galaxy_build_client: false
+
+    - usegalaxy-eu.bashrc
+    - usegalaxy_eu.htcondor
+    - role: hxr.galaxy-nonreproducible-tools
+      become: true
+      become_user: galaxy
+    - role: usegalaxy-eu.webhooks # Clone webhook repository
+      become: true
+      become_user: galaxy
+    - role: usegalaxy-eu.tours # Clone tour repository
+      become: true
+      become_user: galaxy
+
+    # GALAXY
+    - hxr.postgres-connection
+    - galaxyproject.gxadmin
+    - usegalaxy-eu.nginx
+
+    # The REAL galaxy role
+    - role: galaxyproject.galaxy
+      vars:
+        galaxy_create_user: true
+        galaxy_manage_clone: true
+        galaxy_manage_download: false
+        galaxy_manage_existing: false
+        galaxy_manage_static_setup: true
+        galaxy_manage_mutable_setup: true
+        galaxy_manage_database: true
+        galaxy_fetch_dependencies: true
+        galaxy_build_client: true
+
+    ## Extras!
+    - hxr.install-to-venv
+    - usegalaxy_eu.galaxy_systemd
+    - usegalaxy-eu.logrotate
+    - usegalaxy-eu.error-pages
+    - usegalaxy-eu.log-cleaner
+    - usegalaxy_eu.tpv_auto_lint
+    - ssh-hardening

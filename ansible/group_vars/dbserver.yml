@@ -1,0 +1,26 @@
+---
+# Role: usegalaxy_eu.handy.os_setup
+software_groups_to_install:
+  - admin
+  - debug
+  - editors
+  - services
+  - utils
+
+# PostgreSQL
+postgresql_conf:
+  - listen_addresses: "'*'"
+  - max_connections: 128
+  - shared_buffers: "1GB"
+  - temp_buffers: "64MB"
+  - max_prepared_transactions: 100
+  - work_mem: "64MB"
+  - maintenance_work_mem: "64MB"
+  - checkpoint_completion_target: 0.9
+  - random_page_cost: 1.0
+  - effective_cache_size: "1GB"
+  - log_checkpoints: "on"
+  - log_min_duration_statement: 500
+postgresql_pg_hba_conf:
+  - "host    postgres        galaxy          192.52.40.57/21      md5"
+  - "host    galaxy          galaxy          192.52.40.57/21      md5"

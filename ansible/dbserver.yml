@@ -1,0 +1,24 @@
+---
+- hosts: dbserver
+  become: true
+  vars:
+    hostname: galaxyinstance.galaxyproject.eu
+  vars_files:
+    - secret_group_vars/all.yml
+  collections:
+    - devsec.hardening
+  pre_tasks:
+    - name: Install Dependencies
+      package:
+        name: ['python3', 'rsync', 'perl', 'glibc-langpack-en']
+      become: true
+  roles:
+    - geerlingguy.repo-epel
+    - role: usegalaxy_eu.handy.os_setup
+      vars:
+        enable_hostname: true
+        enable_powertools: true
+        enable_install_software: true
+    - usegalaxy-eu.autoupdates
+    - usegalaxy-eu.ansible-postgresql
+    - ssh_hardening

@@ -1,0 +1,9 @@
+---
+- name: Install packages
+  import_tasks: install_nfs_dependencies.yml
+
+- name: Configure filesystem
+  import_tasks: configure_filesystem.yml
+
+- name: Configure NFS exports
+  import_tasks: configure_nfs_exports.yml
