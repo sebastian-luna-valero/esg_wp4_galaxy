@@ -1,35 +1,44 @@
 ---
-user_name: galaxy
-user_group_name: galaxy
+galaxy_group:
+  name: galaxy
+  gid: 999
+galaxy_user:
+  name: galaxy
+  uid: 999
+  shell: /bin/bash
 
-# create_user task
-handy_groups:
-  - group_name: "{{ user_group_name }}"
-    group_gid: 999
-
-handy_users:
-  - user_name: "{{ user_name }}"
-    user_uid: 999
-    user_comment: rustus Service-Acct
-    user_group: "{{ user_group_name }}"
-
-# Autofs
+# Role: autofs
 autofs_service:
   install: true
   enable: true
-nfs_kernel_tuning: true
-
 autofs_mount_points:
   - data
-  - gxtest
-  - gxkey
   - jwd
+autofs_conf_files:
+  data:
+    - galaxy_data      -rw,hard,nosuid      192.52.43.77:/nfs_shares/&
+  jwd:
+    - jwd01            -rw,hard,nosuid      192.52.43.77:/nfs_shares/&
 
-# usegalaxy_eu.handy.os_setup
-## packages
+# Role: usegalaxy_eu.handy.os_setup
+enable_hostname: true
+enable_powertools: true
+enable_remap_user: true
+enable_pam_limits: true
+enable_install_software: true
+enable_create_user: true
+enable_kernel_5: true
 software_groups_to_install:
   - editors
   - utils
+handy_users:
+  - user_name: "{{ galaxy_user.name }}"
+    user_uid: "{{ galaxy_user.uid }}"
+    user_group: "{{ galaxy_group.name }}"
+    user_comment: "rustus Service-Acct"
+handy_groups:
+  - group_name: "{{ galaxy_group.name }}"
+    group_gid: "{{ galaxy_group.gid }}"
 
 ## kernel_5
 kernel_5_package: kernel-ml

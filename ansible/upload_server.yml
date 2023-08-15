@@ -1,24 +1,50 @@
 ---
-- hosts: nfs_server
+- hosts: upload_server
   become: true
+  become_user: root
   vars:
     hostname: "{{ inventory_hostname }}"
-  collections:
-    - devsec.hardening
+    # Make sure that this directory exists otherwise rustus service won't start
+    upload_dir_main: /data/jwd01/tus_upload/main
+    rustus_version: "0.7.4"
+    rustus_instances:
+      - name: main_uploads
+        user: "{{ galaxy_user.name }}"
+        group: "{{ galaxy_group.name }}"
+        working_directory: "{{ upload_dir_main }}"
+        args:
+          - --host "{{ ansible_host }}"
+          - --port 1081
+          - "--data-dir {{ upload_dir_main }}"
+          - --hooks-http-urls "https://192.52.40.57/api/upload/hooks"
+          - --hooks-http-proxy-headers "X-Api-Key,Cookie"
+          - --hooks "pre-create"
+          - --hooks-format tusd
+          - --url "/api/upload/resumable_upload"
+          - --max-body-size 20000000
+          - --info-storage "file-info-storage" --info-dir "{{ upload_dir_main }}"
   pre_tasks:
     - name: Install Dependencies
       package:
         name:
           [
-            "python3-virtualenv",
-            "python38",
-            "python38-devel",
+            "python3",
+            "python3-devel",
+            "firewalld"
           ]
-      become: true
-    - name: Set default version of Python
-      alternatives:
-        name: python
-        path: /usr/bin/python3
+
+    - name: Start and enable firewalld
+      service:
+        name: firewalld
+        state: started
+        enabled: true
+
+    - ansible.posix.firewalld:
+        zone: public
+        port: 1080-1081/tcp
+        permanent: true
+        state: enabled
+
     # Without setting this context chronyd service won't start
     - name: Semanage chronyd port udp 1123
       seport:
@@ -27,13 +53,6 @@
         setype: chronyd_port_t
         state: present
   post_tasks:
-    - name: Append some users to the systemd-journal group
-      user:
-        name: "{{ item }}"
-        groups: systemd-journal
-        append: true
-      loop:
-        - "{{ galaxy_user.name }}"
     - name: Set authorized SSH key (galaxy user)
       ansible.posix.authorized_key:
         user: "{{ galaxy_user.name }}"
@@ -46,7 +65,6 @@
   roles:
     - geerlingguy.repo-epel
     - usegalaxy_eu.handy.os_setup
-    - usegalaxy-eu.autoupdates
     - influxdata.chrony
-    - nfs_server
-    - devsec.hardening.ssh_hardening
+    - autofs
+    - usegalaxy_eu.rustus

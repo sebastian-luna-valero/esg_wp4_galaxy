@@ -4,6 +4,7 @@
     name:
       - nfs-utils
       - nfs4-acl-tools
+      - firewalld
     state: present
 
 - name: Start and enable nfs-server

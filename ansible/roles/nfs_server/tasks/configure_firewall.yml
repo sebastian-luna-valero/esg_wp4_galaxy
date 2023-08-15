@@ -1,0 +1,11 @@
+---
+- name: Configure firewall for nfs
+  firewalld:
+    service: {{ item }}
+    permanent: true
+    state: enabled
+    immediate: true
+  with_items:
+    - nfs
+    - mountd
+    - rpc-bind

@@ -8,6 +8,7 @@
 .venv
 crash.log
 collections
+ansible/ansible.log
 ansible/roles/*
 !ansible/roles/autofs
 !ansible/roles/hxr.galaxy-nonreproducible-tools

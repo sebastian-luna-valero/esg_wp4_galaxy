@@ -55,5 +55,5 @@ devices:
 # Once this is exported we can simply use the "&" character to mount the subdirectories of the root NFS share using the AutoFS service.
 nfs_exports:
   - path: "{{ nfs_share_root }}"
-    host: 192.52.32.0/20
+    host: 192.52.0.0/20
     options: "fsid=0,rw,no_root_squash,no_subtree_check,corssmnt"

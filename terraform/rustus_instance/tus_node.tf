@@ -1,10 +1,10 @@
 data "openstack_images_image_v2" "os_image" {
-  name = "Rocky 8.5"
+  name = "Rocky 9.0"
 }
 
 resource "openstack_compute_instance_v2" "rustus_instance" {
   name            = "ESG WP4 Galaxy Rustus instance"
-  flavor_name     = "m1.large"
+  flavor_name     = "m1.medium"
   key_pair        = "cloud2"
   security_groups = ["default", "public-ssh", "ufr-ingress"]
 
@@ -15,7 +15,7 @@ resource "openstack_compute_instance_v2" "rustus_instance" {
   block_device {
     uuid                  = data.openstack_images_image_v2.os_image.id
     source_type           = "image"
-    volume_size           = 30
+    volume_size           = 20
     destination_type      = "volume"
     boot_index            = 0
     delete_on_termination = true

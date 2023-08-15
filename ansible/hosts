@@ -8,7 +8,7 @@ galaxy_instance
 mqesginstance.galaxyproject.eu ansible_host=192.52. ansible_ssh_user=rocky ansible_ssh_private_key_file=/home/sanjay/.ssh/freiburg_gp_ecdsa
 
 [upload_server]
-uploadesginstance.galaxyproject.eu ansible_host=192.52. ansible_ssh_user=rocky ansible_ssh_private_key_file=/home/sanjay/.ssh/freiburg_gp_ecdsa
+uploadesginstance.galaxyproject.eu ansible_host=192.52.44.123 ansible_ssh_user=rocky ansible_ssh_private_key_file=/home/sanjay/.ssh/freiburg_gp_ecdsa
 
 [nfs_server]
 nfsesginstance.galaxyproject.eu ansible_host=192.52.43.77 ansible_ssh_user=rocky ansible_ssh_private_key_file=/home/sanjay/.ssh/freiburg_gp_ecdsa
