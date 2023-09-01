@@ -3,12 +3,12 @@
 # This is needed, because it contains other variables
 
 galaxy_jobconf:
-  plugin_workers: 4
+  plugin_workers: 2
   handlers:
     count: "{{ galaxy_systemd_handlers }}"
     assign_with: db-skip-locked
-    max_grab: 8
-    ready_window_size: 16
+    max_grab: 4
+    ready_window_size: 8
   plugins:
     - id: condor
       load: galaxy.jobs.runners.condor:CondorJobRunner
@@ -30,22 +30,22 @@ galaxy_jobconf:
         - "{{ galaxy_config_dir }}/total_perspective_vortex/tools.yml"
   limits:
     - type: "destination_user_concurrent_jobs"
-      id: "condor_upload"
+      id: "condor_tpv"
       value: "10"
     - type: "walltime"
       value: "'148:00:00'"
     - type: "output_size"
-      value: "'300GB'"
+      value: "'20GB'"
     - type: "registered_user_concurrent_jobs"
-      value: "30"
+      value: "5"
     - type: "anonymous_user_concurrent_jobs"
       value: "0"
-    - type: "destination_user_concurrent_jobs"
-      id: "sh_fdid_condor_docker_ie"
-      value: "3"
-    - type: "destination_user_concurrent_jobs"
-      id: "sh_fdid_condor_docker_ie_interactive"
-      value: "3"
+    # - type: "destination_user_concurrent_jobs"
+    #   id: "sh_fdid_condor_docker_ie"
+    #   value: "3"
+    # - type: "destination_user_concurrent_jobs"
+    #   id: "sh_fdid_condor_docker_ie_interactive"
+    #   value: "3"
     - type: "destination_user_concurrent_jobs"
       id: "sh_fdid_condor_intensive_jobs"
-      value: "10"
+      value: "5"

@@ -19,6 +19,7 @@ autofs_conf_files:
     - galaxy_data      -rw,hard,nosuid      192.52.43.77:/nfs_shares/&
   jwd:
     - jwd01            -rw,hard,nosuid      192.52.43.77:/nfs_shares/&
+  
 
 # Role: usegalaxy_eu.handy.os_setup
 enable_hostname: true

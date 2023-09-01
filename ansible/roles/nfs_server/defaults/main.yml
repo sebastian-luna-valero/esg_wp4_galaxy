@@ -15,4 +15,4 @@ devices: {}
 nfs_exports:
   - path: "{{ nfs_share_root }}"
     hosts: "*"
-    options: "fsid=0,rw,no_root_squash,no_subtree_check,corssmnt"
+    options: "fsid=0,rw,no_root_squash,no_subtree_check,crossmnt"

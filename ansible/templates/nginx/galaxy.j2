@@ -11,9 +11,9 @@ upstream galaxy {
 
 server {
 	listen        *:443 ssl default_server;
-	server_name   "{{ inventory_hostname }}";
+	server_name   [::]:443 default_server;
 
-    error_page 404 /404.html;
+	error_page 404 /404.html;
 	error_page 502 /502.html;
 	error_page 503 /503.html;
 	error_page 504 /503.html;
@@ -54,8 +54,95 @@ server {
 	}
 
 	location /static/welcome.html {
-		alias {{ galaxy_server_dir }}/static/welcome.html.sample;
+		alias {{ galaxy_subsite_dir }}/$host.html;
 		expires 24h;
+	}
+
+	location ~ /static/dist/base.css {
+        root {{ galaxy_subsite_dir }};
+        # Fall back to base version if a per-host version can't be found.
+        try_files /$host.css /{{ galaxy_subsite_base_domain }}.css =404;
+    }
+
+	location ~ ^/api/dataset_collections/([^/]+)/download/?$ {
+		proxy_buffering off;
+		proxy_pass http://galaxy;
+		proxy_set_header Host $http_host;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
+		proxy_set_header Upgrade $http_upgrade;
+	}
+
+	location /_x_accel_redirect {
+		internal;
+		alias /;
+		add_header X-Frame-Options SAMEORIGIN;
+		add_header X-Content-Type-Options nosniff;
+
+		# CORS
+		if ($http_origin ~ "^https?://(covid19map\.elixir-luxembourg\.org|www\.bx\.psu\.edu)$") {
+			add_header Access-Control-Allow-Origin $http_origin;
+			add_header Access-Control-Allow-Methods 'GET';
+			add_header Access-Control-Expose-Headers 'Content-Length,Content-Range';
+			add_header Access-Control-Allow-Headers 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+		}
+	}
+
+	location /_upload {
+		upload_store {{ galaxy_config['galaxy']['nginx_upload_store'] }};
+		upload_limit_rate 32k;
+		upload_store_access user:rw group:rw all:rw;
+		upload_pass_form_field "";
+		upload_set_form_field "__${upload_field_name}__is_composite" "true";
+		upload_set_form_field "__${upload_field_name}__keys" "name path";
+		upload_set_form_field "${upload_field_name}_name" "$upload_file_name";
+		upload_set_form_field "${upload_field_name}_path" "$upload_tmp_path";
+		upload_pass_args on;
+		upload_pass /_upload_done;
+	}
+
+	location /_upload_done {
+		set $dst /api/tools;
+		if ($args ~ nginx_redir=([^&]+)) {
+				set $dst $1;
+		}
+		rewrite "" $dst;
+	}
+
+	location /_job_files {
+		if ($request_method != POST) {
+				rewrite "" /api/jobs/$arg_job_id/files last;
+		}
+		upload_store {{ galaxy_config['galaxy']['nginx_upload_job_files_store'] }};
+                # the rate limit might be needed if we have many Pulsar jobs that are writing data back
+		# we need to limit it because the disc IO can be too large, ideally this happens on a different node
+                # upload_limit_rate 32k;
+		upload_store_access user:rw group:rw all:rw;
+		upload_pass_form_field "";
+		upload_set_form_field "__${upload_field_name}_path" "$upload_tmp_path";
+		upload_pass_args on;
+		upload_pass /_upload_job_files_done;
+	}
+
+	location /_upload_job_files_done {
+		internal;
+		rewrite "" /api/jobs/$arg_job_id/files;
+	}
+
+	location /api/upload/resumable_upload {
+		# Disable request and response buffering
+		proxy_request_buffering  off;
+		proxy_buffering          off;
+		proxy_http_version       1.1;
+
+		# Add X-Forwarded-* headers
+		proxy_set_header X-Forwarded-Host $host;
+		proxy_set_header X-Forwarded-Proto $scheme;
+
+		proxy_set_header         Upgrade $http_upgrade;
+		proxy_set_header         Connection "upgrade";
+		client_max_body_size     0;
+		proxy_pass http://uploadesginstance.esgwps.uno:1081/api/upload/resumable_upload;
 	}
 
 	# serve visualization and interactive environment plugin static content
@@ -72,4 +159,41 @@ server {
 	location /favicon.ico {
 		alias {{ galaxy_server_dir }}/static/favicon.ico;
 	}
+
+	location /flower {
+		proxy_pass http://localhost:5555;
+		proxy_set_header Host $host;
+		proxy_redirect off;
+		proxy_http_version 1.1;
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection "upgrade";
+	}
+
+	location /external/phdcomics/ {
+		proxy_pass http://phdcomics.com/;
+		# The comics are extremely cacheable. No sense waiting for a server from USA to respond.
+		proxy_cache           STATIC;
+		proxy_cache_valid     200  10d;
+		proxy_cache_use_stale error timeout invalid_header updating http_500 http_502 http_503 http_504;
+	}
+
+	location /about {
+		return 301 https://galaxyproject.eu/about;
+	}
+
+	location /people {
+		return 301 https://galaxyproject.eu/people;
+	}
+
+	location /terms {
+		return 301 https://galaxyproject.eu/gdpr;
+	}
+
+	resolver 8.8.8.8 8.8.4.4 valid=300s;
+	resolver_timeout 5s;
+	add_header X-Content-Type-Options nosniff;
+	add_header X-XSS-Protection "1; mode=block";
+	add_header X-Robots-Tag none;
+
+	client_max_body_size 1G; # aka max upload size, defaults to 1M
 }

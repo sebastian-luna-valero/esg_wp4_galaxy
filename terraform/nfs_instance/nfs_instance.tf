@@ -57,3 +57,13 @@ resource "openstack_compute_volume_attach_v2" "_nfs_tools_volmes_attachments" {
   instance_id = openstack_compute_instance_v2.nfs_instance.id
   volume_id   = openstack_blockstorage_volume_v2.nfs_tools_volume.id
 }
+
+resource "openstack_blockstorage_volume_v2" "nfs_galaxy_main_volume" {
+  name  = "esg_wp4_galaxy_nfs_main"
+  size  = 100
+}
+
+resource "openstack_compute_volume_attach_v2" "_nfs_galaxy_main_volmes_attachments" {
+  instance_id = openstack_compute_instance_v2.nfs_instance.id
+  volume_id   = openstack_blockstorage_volume_v2.nfs_galaxy_main_volume.id
+}

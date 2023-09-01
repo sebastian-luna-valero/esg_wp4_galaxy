@@ -18,16 +18,19 @@ collections:
 roles:
   - src: galaxyproject.galaxy
     version: 0.10.14
-  - src: galaxyproject.postgresql_objects
-    version: 1.2.0
   - name: galaxyproject.galaxy
     src: https://github.com/galaxyproject/ansible-galaxy
     version: 0.9.18
   - name: galaxyproject.cvmfs
     src: https://github.com/usegalaxy-eu/ansible-cvmfs
     version: master
-  - src: galaxyproject.nginx
-    version: 0.7.1
+  - name: usegalaxy_eu.ansible_nginx_upload_module
+    version: 1.0.0
+  - name: usegalaxy-eu.nginx
+    src: https://github.com/usegalaxy-eu/ansible-nginx
+    version: master
+  - src: galaxyproject.postgresql_objects
+    version: 1.2.0
   - name: usegalaxy-eu.ansible-postgresql
     src: https://github.com/usegalaxy-eu/ansible-postgresql
     version: main
@@ -56,5 +59,13 @@ roles:
     version: 0.1.0
   - name: usegalaxy_eu.tpv_auto_lint
     version: 0.2.1
-  - name: usegalaxy-eu.certbot
-    version: 0.1.11
+  - name: geerlingguy.redis
+    version: 1.8.0
+  - name: galaxyproject.miniconda
+    version: 0.3.1
+  - name: galaxyproject.nginx
+    version: 0.6.4
+  - name: usegalaxy_eu.flower
+    version: 1.0.2
+  - name: usegalaxy_eu.galaxy_subdomains
+    version: 0.0.13

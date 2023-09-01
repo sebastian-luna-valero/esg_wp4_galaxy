@@ -1,3 +1,5 @@
+*.swp
+*.swap
 *.retry
 .venv
 *.vault_password
@@ -8,7 +10,7 @@
 .venv
 crash.log
 collections
-ansible/ansible.log
+*ansible.log
 ansible/roles/*
 !ansible/roles/autofs
 !ansible/roles/hxr.galaxy-nonreproducible-tools
@@ -21,3 +23,4 @@ ansible/roles/*
 !ansible/roles/usegalaxy-eu.logrotate
 !ansible/roles/usegalaxy-eu.tours
 !ansible/roles/usegalaxy-eu.webhooks
+!ansible/roles/usegalaxy-eu.fix-galaxy-server-dir

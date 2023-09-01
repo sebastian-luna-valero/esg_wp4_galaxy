@@ -1,7 +1,7 @@
 ---
 - name: Configure firewall for nfs
   firewalld:
-    service: {{ item }}
+    service: "{{ item }}"
     permanent: true
     state: enabled
     immediate: true

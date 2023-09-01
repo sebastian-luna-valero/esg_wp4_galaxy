@@ -13,10 +13,10 @@
         group: "{{ galaxy_group.name }}"
         working_directory: "{{ upload_dir_main }}"
         args:
-          - --host "{{ ansible_host }}"
+          - --host "{{ inventory_hostname }}"
           - --port 1081
           - "--data-dir {{ upload_dir_main }}"
-          - --hooks-http-urls "https://192.52.40.57/api/upload/hooks"
+          - --hooks-http-urls "https://usegalaxy.esgwps.uno/api/upload/hooks"
           - --hooks-http-proxy-headers "X-Api-Key,Cookie"
           - --hooks "pre-create"
           - --hooks-format tusd

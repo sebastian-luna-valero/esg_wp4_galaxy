@@ -2,11 +2,11 @@ data "openstack_images_image_v2" "os_image" {
   name = "Rocky 8.5"
 }
 
-resource "openstack_compute_instance_v2" "galaxy_instance" {
-  name            = "ESG WP4 Galaxy test instance"
-  flavor_name     = "m1.xlarge"
+resource "openstack_compute_instance_v2" "compute_instance" {
+  name            = "ESG WP4 Galaxy compute instance"
+  flavor_name     = "m1.xxlarge"
   key_pair        = "cloud2"
-  security_groups = ["default", "public-ssh", "public-web2"]
+  security_groups = ["default", "public-ssh", "ufr-ingress"]
 
   network {
     name = "public"
@@ -15,7 +15,7 @@ resource "openstack_compute_instance_v2" "galaxy_instance" {
   block_device {
     uuid                  = data.openstack_images_image_v2.os_image.id
     source_type           = "image"
-    volume_size           = 100
+    volume_size           = 20
     destination_type      = "volume"
     boot_index            = 0
     delete_on_termination = true

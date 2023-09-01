@@ -26,19 +26,6 @@
   login: ${user.preferences['nextcloud|username']}
   password: ${user.preferences['nextcloud|password']}
 
-- type: webdav
-  id: erga_nextcloud
-  label: ERGA Nextcloud
-  doc: ERGA Pilot storage provided by BSC
-  writable: true
-  url: 'https://ergapilot.bsc.es'
-  root: '/remote.php/webdav'
-  use_temp_files: true
-  temp_path: /data/jwd04/tmp
-  login: "{{ erga_nextcloud_login }}"
-  password: "{{ erga_nextcloud_password }}"
-  requires_groups: erga
-
 - type: ftp
   id: ebi-ftp
   label: "EBI FTP server"

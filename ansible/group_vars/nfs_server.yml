@@ -48,6 +48,7 @@ devices:
   galaxy_data: /dev/vdb
   jwd01: /dev/vdc
   tools: /dev/vdd
+  galaxy_main: /dev/vde
 
 # NFS exports list
 # Here we need to export only the root NFS share because all the other shares are mounted as subdirectories of the root NFS share.
@@ -55,5 +56,5 @@ devices:
 # Once this is exported we can simply use the "&" character to mount the subdirectories of the root NFS share using the AutoFS service.
 nfs_exports:
   - path: "{{ nfs_share_root }}"
-    host: 192.52.0.0/20
-    options: "fsid=0,rw,no_root_squash,no_subtree_check,corssmnt"
+    host: 192.52.40.0/21
+    options: "fsid=0,rw,no_root_squash,no_subtree_check,crossmnt"

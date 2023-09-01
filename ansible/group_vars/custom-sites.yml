@@ -1,0 +1,5 @@
+---
+galaxy_custom_site_base_css: '#masthead { background-color: #003399 !important;}'
+galaxy_subsite_base_domain: usegalaxy.esgwps.uno
+galaxy_subsite_dir: '/opt/multisite-css'
+galaxy_subsites: []

@@ -1,0 +1,115 @@
+---
+- hosts: mq_server
+  become: true
+  vars:
+    hostname: "{{ inventory_hostname }}"
+  vars_files:
+    - secret_group_vars/all.yml
+    - secret_group_vars/pulsar.yml
+  collections:
+    - devsec.hardening
+  pre_tasks:
+    - name: Install Dependencies
+      package:
+        name:
+          [
+            "python3-virtualenv",
+            "python38",
+            "python38-devel",
+            "firewalld",
+          ]
+    - name: Set decfault version of Python
+      alternatives:
+        name: python
+        path: /usr/bin/python3.8
+    - name: Install docker pip package
+      ansible.builtin.pip:
+        name: docker
+    - name: Set docker_users (Docker role)
+      set_fact:
+        docker_users: "rocky"
+    - name: Put SELinux in permissive mode, logging actions that would be blocked.
+      ansible.posix.selinux:
+        policy: targeted
+        state: permissive
+    - name: Configure SELinux
+      ansible.posix.seboolean:
+        name: "{{ item }}"
+        state: true
+        persistent: true
+      loop:
+        - httpd_can_network_connect
+    - name: Create redis user
+      ansible.builtin.user:
+        name: redis
+        comment: Redis Server
+        shell: /sbin/nologin
+        system: true
+        createhome: false
+    - name: Change the redis_t domain to permissive
+      community.general.selinux_permissive:
+        name: redis_t
+        permissive: true
+    - name: Disable firewalld service
+      ansible.builtin.service:
+        name: firewalld
+        enabled: true
+        state: started
+    - name: Open ports for redis and MQ management plugin interface
+      ansible.posix.firewalld:
+        port: "{{ item }}"
+        permanent: true
+        state: enabled
+      loop:
+        - 6379/tcp
+        - 15672/tcp
+    - name: Open ports for rabbitmq
+      ansible.posix.firewalld:
+        service: "{{ item }}"
+        permanent: true
+        state: enabled
+      loop:
+        - amqp
+        - amqps
+        - https
+        - http
+    - name: Create redis db dir
+      ansible.builtin.file:
+        path: /var/lib/redis
+        owner: redis
+        group: redis
+        state: directory
+        mode: 0755
+    - name: Create redis log dir
+      ansible.builtin.file:
+        path: /var/log/redis
+        owner: redis
+        group: redis
+        state: directory
+        mode: 0755
+    - name: Touches redis
+      ansible.builtin.file:
+        path: /var/log/redis/redis-server.log
+        owner: redis
+        group: redis
+        state: touch
+        mode: 0644
+    # Without setting this context chronyd service won't start
+    - name: Semanage chronyd port udp 1123
+      seport:
+        ports: 1123
+        proto: udp
+        setype: chronyd_port_t
+        state: present
+  roles:
+    ## Starting configuration of the operating system
+    - geerlingguy.repo-epel
+    - usegalaxy_eu.handy.os_setup
+    - usegalaxy-eu.autoupdates
+    - influxdata.chrony
+    - geerlingguy.docker
+    - galaxyproject.nginx
+    - usegalaxy_eu.rabbitmqserver
+    - geerlingguy.redis
+    - devsec.hardening.os_hardening
+    - devsec.hardening.ssh_hardening

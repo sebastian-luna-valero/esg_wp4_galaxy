@@ -2,16 +2,28 @@
 - hosts: dbserver
   become: true
   vars:
-    hostname: galaxyinstance.galaxyproject.eu
+    hostname: "{{ inventory_hostname }}"
   vars_files:
     - secret_group_vars/all.yml
+    - secret_group_vars/db_main.yml
   collections:
     - devsec.hardening
   pre_tasks:
     - name: Install Dependencies
       package:
-        name: ['python3', 'rsync', 'perl', 'glibc-langpack-en']
+        name: ['python3', 'rsync', 'perl', 'glibc-langpack-en', "python3-psycopg2", "firewalld"]
       become: true
+    - name: Enable and start firewalld
+      service:
+        name: firewalld
+        state: started
+        enabled: true
+      become: true
+    - name: Allow postgresql service in firewalld
+      firewalld:
+        service: postgresql
+        permanent: true
+        state: enabled
   roles:
     - geerlingguy.repo-epel
     - role: usegalaxy_eu.handy.os_setup
@@ -19,6 +31,10 @@
         enable_hostname: true
         enable_powertools: true
         enable_install_software: true
+        enable_create_user: false
     - usegalaxy-eu.autoupdates
     - usegalaxy-eu.ansible-postgresql
+    - role: galaxyproject.postgresql_objects
+      become: true
+      become_user: postgres
     - ssh_hardening

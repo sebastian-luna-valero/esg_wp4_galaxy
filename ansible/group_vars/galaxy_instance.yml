@@ -55,29 +55,41 @@ autofs_mount_points:
 autofs_conf_files:
   data:
     - galaxy_data      -rw,hard,nosuid      192.52.43.77:/nfs_shares/&
+    - galaxy_main      -rw,hard,nosuid      192.52.43.77:/nfs_shares/&
   jwd:
     - jwd01            -rw,hard,nosuid      192.52.43.77:/nfs_shares/&
   usrlocal:
     - /usr/local/tools   -rw,hard,nosuid     192.52.43.77:/nfs_shares/tools
 
+# Miniconda role variables (galaxyproject.miniconda)
+conda_prefix_dir: /opt/miniconda
+
+# AWS
+# aws_cli_credentials:
+#   - access_key: "{{ aws_credentials.certbot.AWS_ACCESS_KEY }}"
+#     secret_key: "{{ aws_credentials.certbot.AWS_SECRET_KEY }}"
+#     homedir: /root
+#     owner: root
+#     group: root
+
 # Certbot
+certbot_admin_email: sanjaysrikakulam@gmail.com
 certbot_virtualenv_package_name: python3-virtualenv
-certbot_dns_provider: route53
-certbot_auth_method: --standalone
+certbot_virtualenv_command: "python3.8 -m venv"
+certbot_auth_method: --webroot
 
 certbot_auto_renew_hour: "{{ 23 | random(seed=inventory_hostname) }}"
 certbot_auto_renew_minute: "{{ 59 | random(seed=inventory_hostname) }}"
 certbot_install_method: virtualenv
 certbot_auto_renew: true
 certbot_auto_renew_user: root
-certbot_environment: staging
+certbot_environment: "production"
 certbot_well_known_root: /etc/nginx/_well-known_root
 certbot_share_key_users:
   - nginx
 certbot_post_renewal: |
     systemctl restart nginx || true
-certbot_domains:
-  - "{{ inventory_hostname }}"
+certbot_domains: "{{ server_names }}"
 certbot_agree_tos: --agree-tos
 
 # Nginx
@@ -115,9 +127,9 @@ nginx_conf_http:
     image/svg+xml
     image/x-icon
   gzip_buffers: "16 8k"
-nginx_ssl_role: usegalaxy_eu.certbot
+nginx_ssl_role: usegalaxy-eu.certbot
 nginx_conf_ssl_certificate: /etc/ssl/certs/fullchain.pem
-nginx_conf_ssl_certificate_key: //etc/ssl/user/privkey-nginx.pem
+nginx_conf_ssl_certificate_key: /etc/ssl/user/privkey-nginx.pem
 
 # TPV Script
 tpv_config_dir_name: total_perspective_vortex
@@ -128,18 +140,21 @@ galaxy_cvmfs_repos_enabled: config-repo
 
 # SystemD
 galaxy_systemd_mode: "gunicorn"
-galaxy_systemd_gunicorns: 2
+galaxy_systemd_gunicorns: 1
 galaxy_systemd_gunicorn_workers: 2
 galaxy_systemd_gunicorn_timeout: 600
-galaxy_systemd_handlers: 2
-galaxy_systemd_workflow_schedulers: 2
+galaxy_systemd_handlers: 1
+galaxy_systemd_workflow_schedulers: 1
+
+galaxy_systemd_handler_env: ""
+galaxy_systemd_workflow_scheduler_env: ""
 
 galaxy_systemd_memory_limit: 5
 galaxy_systemd_memory_limit_handler: 2
 galaxy_systemd_memory_limit_workflow: 2
 
 # HTCondor
-condor_host: "{{ ansible_host }}"
+condor_host: "{{ inventory_hostname }}"
 condor_fs_domain: esgwpfour.uni-freiburg.de
 condor_uid_domain: esgwpfour.uni-freiburg.de
 condor_allow_write: "192.52.40.0/21"
@@ -167,7 +182,7 @@ condor_extra: |
 
 # gxadmin
 postgres_user: galaxy
-postgres_host: "{{ ansible_host }}"
+postgres_host: "{{ inventory_hostname }}"
 postgres_port: 5432
 
 # postgres_pass defined in secret_group_vars/all.yml
@@ -194,6 +209,7 @@ galaxy_user:
 
 # Galaxy configuration files will be written with these permissions (mode argument to Ansible copy/template module)
 galaxy_config_perms: 0644
+__galaxy_dir_perms: 0755
 
 galaxy_root: /opt/galaxy
 galaxy_workflow_scheduler_count: "{{ galaxy_systemd_workflow_schedulers }}"
@@ -204,6 +220,7 @@ galaxy_shed_tools_dir: "{{ galaxy_root }}/shed_tools"
 galaxy_tool_data_path: "{{ galaxy_root }}/tool-data"
 __galaxy_shed_tools_dir: "{{ galaxy_shed_tools_dir }}"
 galaxy_backup_configfiles: false
+biotools_content_dir: '{{ galaxy_mutable_data_dir }}/cache/biotools/content'
 
 galaxy_server_dir: "{{ galaxy_root }}/server"
 galaxy_config_dir: "{{ galaxy_root }}/config"
@@ -211,7 +228,7 @@ galaxy_venv_dir: "{{ galaxy_root }}/venv"
 galaxy_job_working_directory: "{{ galaxy_config['galaxy']['job_working_directory'] }}"
 ucsc_build_sites:
 
-galaxy_virtualenv_command: "pyvenv"
+galaxy_virtualenv_command: "{{ conda_prefix_dir }}/envs/_galaxy_/bin/python -m venv --copies"
 galaxy_nonrepro_tools: "{{ galaxy_root }}/custom-tools"
 galaxy_nonrepro_commit: master
 
@@ -237,7 +254,7 @@ galaxy_instance_hostname: "{{ inventory_hostname }}"
 galaxy_config_style: yaml
 
 galaxy_repo: "https://github.com/usegalaxy-eu/galaxy.git"
-galaxy_commit_id: "release_23.0_europe"
+galaxy_commit_id: "release_23.1_europe"
 galaxy_force_checkout: true # discard any modified files
 
 galaxy_singularity_images_cvmfs_path: "/cvmfs/singularity.galaxyproject.org/all/"
@@ -299,3 +316,47 @@ galaxy_config_templates:
     dest: "{{ galaxy_config_dir }}/file_sources_conf.yml"
   - src: "{{ galaxy_config_template_src_dir }}/config/object_store_conf.xml.j2"
     dest: "{{ galaxy_config['galaxy']['object_store_config_file'] }}"
+  # - src: "{{ galaxy_config_template_src_dir }}/config/welcome.html"
+  #   dest: "{{ galaxy_mutable_config_dir }}/welcome.html"
+
+# Flower - celery
+galaxy_additional_venv_packages:
+  - redis
+  - flower
+
+celery_root_dir: "{{ galaxy_root }}/celery"
+galaxy_systemd_celery: true
+galaxy_systemd_celery_beat_schedule_path: "{{ celery_root_dir }}/celery-beat-schedule"
+galaxy_systemd_watchdog: true
+galaxy_systemd_memory_limit_celery_internal: 1
+galaxy_systemd_memory_limit_celery_external: 1
+galaxy_systemd_memory_limit_celery_beat: 1
+
+# The sum of autoscale max * workers for internal and external should not exceed your CPUs
+galaxy_systemd_celery_internal_workers: 1
+galaxy_systemd_celery_internal_concurrency: 1
+galaxy_systemd_celery_internal_autoscale: "1,1"
+galaxy_systemd_celery_internal_max_tasks: 1
+
+# Worker for external queue
+galaxy_systemd_celery_external_workers: 1
+galaxy_systemd_celery_external_concurrency: 1
+galaxy_systemd_celery_external_autoscale: "1,1"
+galaxy_systemd_celery_external_max_tasks: 1
+
+flower_python_version: python3.8
+flower_app_dir: "{{ galaxy_root }}"
+flower_log_file: /var/log/flower
+flower_python_path: "{{ galaxy_root }}/server/lib"
+flower_venv_dir: "{{ galaxy_venv_dir }}"
+flower_db_file: "{{ galaxy_root }}/var/flower.db"
+flower_app_name: galaxy.celery
+flower_persistent: true
+flower_broker_api: "https://flower:{{ rabbitmq_password_flower }}@mqesginstance.esgwps.uno/api/"
+flower_broker_url: "amqp://flower:{{ rabbitmq_password_flower }}@mqesginstance.esgwps.uno:5671/galaxy?ssl=true"
+flower_proxy_prefix: /flower
+flower_ui_users:
+  - name: admin
+    password: "{{ flower_user_password }}"
+flower_environment_variables:
+  GALAXY_CONFIG_FILE: "{{ galaxy_config_file }}"

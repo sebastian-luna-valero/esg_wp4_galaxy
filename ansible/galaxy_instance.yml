@@ -6,10 +6,11 @@
     nginx_conf_user: galaxy
     server_names:
       - "{{ hostname }}"
+      - "usegalaxy.esgwps.uno"
   vars_files:
     - group_vars/gxconfig.yml
-    # - secret_group_vars/pulsar.yml
-    - secret_group_vars/db-main.yml
+    - group_vars/custom-sites.yml
+    - secret_group_vars/db_main.yml
     - secret_group_vars/all.yml
     - templates/galaxy/config/job_conf.yml
   collections:
@@ -24,21 +25,43 @@
         name:
           [
             "git",
-            "postgresql",
             "python3-psycopg2",
             "python3-virtualenv",
             "bc",
             "python38",
             "python38-devel",
+            "python38-psycopg2",
+            "firewalld"
           ]
       become: true
     - name: Set default version of Python
       alternatives:
         name: python
-        path: /usr/bin/python3
+        path: /usr/bin/python3.8
     - name: Disable SELinux
       selinux:
         state: disabled
+    - name: Enable and start firewalld
+      service:
+        name: firewalld
+        state: started
+        enabled: true
+    - name: Allow http and https services
+      firewalld:
+        service: "{{ item }}"
+        permanent: true
+        state: enabled
+        immediate: true
+      loop:
+        - http
+        - https
+    - name: Set sysctl fs inotify max user watches # need for celery and galaxy
+      sysctl:
+        name: fs.inotify.max_user_watches
+        value: 1000000
+        state: present
+        reload: true
+        sysctl_set: true
   post_tasks:
     - name: Append some users to the systemd-journal group
       user:
@@ -56,11 +79,37 @@
         - "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOBINXdjILF6x3WuppXyq6J2a2oSLR6waZ6txgjYJogHdIKPbI0TdReCv4EVxxYRY/NqGpHbjkqfRTsf2VgoU3U= mk@galaxy-mira"
         - "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBACB5Q5blymkTIRSzVzXITOGvBuI7W0L9Ykwfz8LJGPraaGVPiezzFGvjhqwX+EyCqQPt7JprR5mimJRw/JN3nBXWAHjekvmB5FuILkk6m5fOiQJ5QhRMyQ5GfxODAvGbHpTuWHbYJLWD5fhcboKPxlXOWy4xY9kDZVuQvEKisNKYBsFLA== sanjay"
         - "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBABRaLHL8mgW86rbtdUh6TY4rs7/la8hAGeSQ3jBF7LMwYZnbS32YDMYvDq3KgNu5WqSMFvkxNm3vfTAbd8CXBfakwDBFBaD9kO0b2t4/p4VoFUsd3B2OvmTR7Bsg7OxTGJJ7aUP/SzTg+Z4NzsmHwQ9h31gfI7n/buZD4S1edQke19Y6w== dominguj@informatik.uni-freiburg.de"
+    - name: Clone bio.tools database repository
+      git:
+        repo: https://github.com/research-software-ecosystem/content.git
+        dest: "{{ biotools_content_dir }}"
+      become: true
+      become_user: galaxy
+    - name: Create a celery directory in galaxy root directory # otherwise celery beat service will fail
+      file:
+        path: "{{ celery_root_dir }}"
+        state: directory
+        owner: galaxy
+        group: galaxy
+        mode: 0755
   roles:
     - geerlingguy.repo-epel
+
+    ## Install miniconda, create a _galaxy_ environment and install Packages
+    ## Galaxy will use the virtualenv from this conda environment (see
+    ## galaxy_virtualenv_command) in the group_vars/sn06.yml
+    - role: galaxyproject.miniconda
+      vars:
+        miniconda_prefix: "{{ conda_prefix_dir }}"
+        galaxy_conda_create_env: true
+        galaxy_conda_env_packages:
+          - python=3.11
+          - pip
+
     - usegalaxy_eu.handy.os_setup
     - usegalaxy-eu.autoupdates
     - influxdata.chrony
+    - autofs
     - galaxyproject.cvmfs
 
     # Setup Galaxy user
@@ -76,6 +125,7 @@
         galaxy_manage_database: false
         galaxy_fetch_dependencies: false
         galaxy_build_client: false
+        galaxy_manage_gravity: false
 
     - usegalaxy-eu.bashrc
     - usegalaxy_eu.htcondor
@@ -92,6 +142,7 @@
     # GALAXY
     - hxr.postgres-connection
     - galaxyproject.gxadmin
+    - usegalaxy_eu.ansible_nginx_upload_module
     - usegalaxy-eu.nginx
 
     # The REAL galaxy role
@@ -106,12 +157,16 @@
         galaxy_manage_database: true
         galaxy_fetch_dependencies: true
         galaxy_build_client: true
+        galaxy_manage_gravity: false
 
     ## Extras!
+    - usegalaxy_eu.flower
+    - usegalaxy-eu.fix-galaxy-server-dir
     - hxr.install-to-venv
     - usegalaxy_eu.galaxy_systemd
+    - usegalaxy_eu.galaxy_subdomains
     - usegalaxy-eu.logrotate
     - usegalaxy-eu.error-pages
     - usegalaxy-eu.log-cleaner
     - usegalaxy_eu.tpv_auto_lint
-    - ssh-hardening
+    - devsec.hardening.ssh_hardening

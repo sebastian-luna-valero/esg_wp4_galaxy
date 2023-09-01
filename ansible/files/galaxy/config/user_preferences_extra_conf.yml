@@ -32,6 +32,14 @@ preferences:
           - [Français, fr]
           - [日本語, ja]
 
+  distributed_arc_compute:
+    description: The URL to your ARC remote HPC compute resource.
+    inputs:
+      - name: remote_arc_resources
+        label: "Add your remote resource url (example: https://arctestcluster-slurm-el9-arc7-ce1.cern-test.uiocloud.no)"
+        type: text
+        required: False
+
   distributed_compute:
     description: Use distributed compute resources
     inputs:
@@ -83,6 +91,38 @@ preferences:
         label: Password
         type: password
         required: False
+
+  # Require to attach pulsar endpoint to the Pulsar Network
+  byoc_pulsar:
+    description: >
+        Bring your own Pulsar endpoint to Galaxy. You can add here your Pulsar credentials and specifications.
+        After 24 hours Galaxy's job scheduling systems will take your Pulsar into account and schedule appropriate jobs to your compute resources.
+        This is an experimental feature. Contact us if you want to learn more about it.
+    inputs:
+      - name: username
+        label: RabbitMQ custom username (e.g. mypulsarendpoint).
+        type: text
+        required: True
+      - name: password
+        label: RabbitMQ custom alphanumerical password, at least 10 characters long (e.g. MyPulS4rP4ssw0rd).
+        type: password
+        required: True
+      - name: max_accepted_cores
+        label: Maximum number of CPU cores available.
+        type: number
+        required: True
+      - name: max_accepted_mem
+        label: Maximum number of RAM available (in GB).
+        type: number
+        required: True
+      - name: min_accepted_gpus
+        label: Minimum number of GPU available (set this to zero if you don't want to share GPUs).
+        type: number
+        required: True
+      - name: max_accepted_gpus
+        label: Maximum number of GPU available (set this to zero if you don't want to share GPUs).
+        type: number
+        required: True
 
   omero_account:
     description: Your OMERO instance connection details

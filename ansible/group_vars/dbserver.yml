@@ -7,6 +7,13 @@ software_groups_to_install:
   - services
   - utils
 
+postgresql_objects_users:
+  - name: "{{ _galaxy_db_user }}"
+    password: "{{ _galaxy_db_pass }}"
+postgresql_objects_databases:
+  - name: "{{ _galaxy_db_name }}"
+    owner: "{{ _galaxy_db_user }}"
+
 # PostgreSQL
 postgresql_conf:
   - listen_addresses: "'*'"
@@ -22,5 +29,5 @@ postgresql_conf:
   - log_checkpoints: "on"
   - log_min_duration_statement: 500
 postgresql_pg_hba_conf:
-  - "host    postgres        galaxy          192.52.40.57/21      md5"
-  - "host    galaxy          galaxy          192.52.40.57/21      md5"
+  - "host    postgres        galaxy          192.52.44.140/21      md5"
+  - "host    galaxy          galaxy          192.52.44.140/21      md5"
