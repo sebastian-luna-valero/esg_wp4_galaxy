@@ -1,14 +1,21 @@
 [galaxy_instance]
-galaxyesginstance.esgwps.uno ansible_host=192.52.44.140 ansible_ssh_user=rocky ansible_ssh_private_key_file=/home/sanjay/.ssh/freiburg_gp_ecdsa
+galaxyesginstance.esgwps.uno ansible_host=192.52.44.140
 
 [dbserver:children]
 galaxy_instance
 
 [mq_server]
-mqesginstance.esgwps.uno ansible_host=192.52.40.130 ansible_ssh_user=rocky ansible_ssh_private_key_file=/home/sanjay/.ssh/freiburg_gp_ecdsa
+mqesginstance.esgwps.uno ansible_host=192.52.40.130
 
 [upload_server]
-uploadesginstance.esgwps.uno ansible_host=192.52.44.123 ansible_ssh_user=rocky ansible_ssh_private_key_file=/home/sanjay/.ssh/freiburg_gp_ecdsa
+uploadesginstance.esgwps.uno ansible_host=192.52.44.123
 
 [nfs_server]
-nfsesginstance.esgwps.uno ansible_host=192.52.43.77 ansible_ssh_user=rocky ansible_ssh_private_key_file=/home/sanjay/.ssh/freiburg_gp_ecdsa
+nfsesginstance.esgwps.uno ansible_host=192.52.43.77
+
+[compute_workers]
+computeesginstance.esgwps.uno ansible_host=192.52.44.134
+
+[all:vars]
+ansible_ssh_user=rocky
+ansible_ssh_private_key_file=/home/sanjay/.ssh/freiburg_gp_ecdsa

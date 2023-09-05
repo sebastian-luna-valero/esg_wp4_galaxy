@@ -12,12 +12,10 @@ collections:
     source: https://galaxy.ansible.com
     type: galaxy
   - name: usegalaxy_eu.handy
-    version: 3.0.0
+    version: 3.0.1
     source: https://galaxy.ansible.com
 
 roles:
-  - src: galaxyproject.galaxy
-    version: 0.10.14
   - name: galaxyproject.galaxy
     src: https://github.com/galaxyproject/ansible-galaxy
     version: 0.9.18
@@ -34,10 +32,12 @@ roles:
   - name: usegalaxy-eu.ansible-postgresql
     src: https://github.com/usegalaxy-eu/ansible-postgresql
     version: main
-  - name: geerlingguy.docker
-    version: 4.1.1
+  - src: geerlingguy.docker
+    version: 6.1.0
   - name: geerlingguy.repo-epel
     version: 3.1.0
+  - name: geerlingguy.java
+    version: 2.2.0
   - name: galaxyproject.gxadmin
     version: 0.0.8
   - name: usegalaxy-eu.certbot
@@ -69,3 +69,6 @@ roles:
     version: 1.0.2
   - name: usegalaxy_eu.galaxy_subdomains
     version: 0.0.13
+  - name: usegalaxy-eu.fslimit
+    src: https://github.com/usegalaxy-eu/ansible-fslimit
+    version: main

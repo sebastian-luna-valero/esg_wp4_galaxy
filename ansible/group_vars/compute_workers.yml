@@ -1,0 +1,107 @@
+---
+# Role: usegalaxy_eu.handy.os_setup
+enable_hostname: true
+enable_powertools: true
+enable_remap_user: true
+enable_kernel_5: true
+enable_grub: true
+enable_cgroups: "{{ false if ansible_facts['distribution_major_version'] == '9' else true }}"
+enable_exclude_packages: true
+enable_journald: true
+enable_pam_limits: true
+enable_install_software: true
+enable_create_user: true
+enable_ansible_root_cron: true
+software_groups_to_install:
+  - admin
+  - apps
+  - debug
+  - development
+  - editors
+  - services
+  - utils
+handy_users:
+  - user_name: "{{ galaxy_user.name }}"
+    user_uid: "{{ galaxy_user.uid }}"
+    user_group: "{{ galaxy_group.name }}"
+    user_comment: "Galaxy useraccount"
+    user_create_home: "{{ galaxy_user.create_home }}"
+    user_home: "{{ galaxy_user.home }}"
+    user_shell: "{{ galaxy_user.shell }}"
+handy_groups:
+  - group_name: "{{ galaxy_group.name }}"
+    group_gid: "{{ galaxy_group.gid }}"
+ansible_root_cron:
+  - name: "Prune unused Docker objects"
+    weekday: "{{ 7 | random }}"
+    minute: "{{ 60 | random }}"
+    hour: "{{ 5 | random }}"
+    job: "docker system prune -f"
+  - name: "Stop containers running more than 1 months"
+    weekday: "{{ 7 | random }}"
+    minute: "{{ 60 | random }}"
+    hour: "{{ 5 | random }}"
+    job: "/usr/bin/docker-stop-1M"
+  - name: "Vacuum logs older than 7 days"
+    weekday: "{{ 7 | random }}"
+    minute: "{{ 15 | random }}"
+    hour: "{{ 2 | random }}"
+    job: '/usr/bin/journalctl --vacuum-time="7 days"'
+boot_options: "console=ttyS0 spectre_v2=off nopti"
+kernel_5_package: kernel-ml
+
+galaxy_group:
+  name: galaxy
+  gid: 999
+galaxy_user:
+  name: galaxy
+  create_home: true
+  home: /opt/galaxy
+  uid: 999
+  shell: /bin/bash
+
+# Role: geerlingguy.java
+java_packages:
+  - java-11-openjdk
+  - java-11-openjdk-devel
+
+# Role: galaxyproject.cvmfs
+cvmfs_role: client
+galaxy_cvmfs_repos_enabled: true
+galaxy_cvmfs_server_urls:
+  - domain: galaxyproject.org
+    urls:
+      - "http://cvmfs1-ufr0.galaxyproject.eu/cvmfs/@fqrn@"
+      - "http://cvmfs1-psu0.galaxyproject.org/cvmfs/@fqrn@"
+
+# Role: geerlingguy.docker
+docker_users:
+  - rocky
+  - condor
+docker_daemon_options: {}
+
+# Role: autofs
+autofs_service:
+  install: true
+  enable: true
+autofs_mount_points:
+  - data
+  - jwd
+  - usrlocal
+autofs_conf_files:
+  data:
+    - galaxy_data      -rw,hard,nosuid      192.52.43.77:/nfs_shares/&
+  jwd:
+    - jwd01            -rw,hard,nosuid      192.52.43.77:/nfs_shares/&
+  usrlocal:
+    - /usr/local/tools   -rw,hard,nosuid     192.52.43.77:/nfs_shares/tools
+    - /opt/galaxy        -rw,hard,nosuid     192.52.43.77:/nfs_shares/galaxy_main
+
+# Role: htcondor_client
+condor_host: "galaxyesginstance.esgwps.uno"
+condor_allow_write: "192.52.40.0/21"
+condor_allow_administrator: "192.52.40.0/21, 192.52.44.140"
+condor_fs_domain: esgwpfour.uni-freiburg.de
+condor_uid_domain: esgwpfour.uni-freiburg.de
+condor_galaxy_group: compute
+condor_galaxy_docker_hack: "True"

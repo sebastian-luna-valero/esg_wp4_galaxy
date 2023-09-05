@@ -2,11 +2,13 @@ data "openstack_images_image_v2" "os_image" {
   name = "Rocky 8.5"
 }
 
+# create instance based on count
 resource "openstack_compute_instance_v2" "compute_instance" {
-  name            = "ESG WP4 Galaxy compute instance"
+  count           = 1
+  name            = "ESG WP4 Galaxy compute instance ${count.index}"
   flavor_name     = "m1.xxlarge"
   key_pair        = "cloud2"
-  security_groups = ["default", "public-ssh", "ufr-ingress"]
+  security_groups = ["default", "ufr-ingress"]
 
   network {
     name = "public"

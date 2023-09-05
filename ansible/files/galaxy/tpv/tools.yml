@@ -21,7 +21,7 @@ tools:
                 if tag != pulsar_tag
             ]
     env:
-      TEMP: /data/1/galaxy_db/tmp
+      TEMP: /data/galaxy_data/galaxy_db/tmp
 
   toolshed.g2.bx.psu.edu/repos/iuc/enasearch_search_data/enasearch_search_data/.*:
     scheduling:

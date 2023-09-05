@@ -55,6 +55,14 @@
       loop:
         - http
         - https
+    - name: Allow HTCondor ports
+      firewalld:
+        port: "{{ item }}"
+        permanent: true
+        state: enabled
+        immediate: true
+      loop:
+        - 9618/tcp
     - name: Set sysctl fs inotify max user watches # need for celery and galaxy
       sysctl:
         name: fs.inotify.max_user_watches
@@ -125,7 +133,6 @@
         galaxy_manage_database: false
         galaxy_fetch_dependencies: false
         galaxy_build_client: false
-        galaxy_manage_gravity: false
 
     - usegalaxy-eu.bashrc
     - usegalaxy_eu.htcondor
@@ -157,7 +164,6 @@
         galaxy_manage_database: true
         galaxy_fetch_dependencies: true
         galaxy_build_client: true
-        galaxy_manage_gravity: false
 
     ## Extras!
     - usegalaxy_eu.flower

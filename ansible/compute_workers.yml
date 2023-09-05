@@ -1,0 +1,87 @@
+---
+- hosts: compute_workers
+  become: true
+  vars:
+    hostname: "{{ inventory_hostname }}"
+  collections:
+    - devsec.hardening
+  pre_tasks:
+    - name: Install Dependencies
+      package:
+        name:
+          [
+            "git",
+            "python38",
+            "python38-devel",
+          ]
+      become: true
+    - name: Set default version of Python
+      alternatives:
+        name: python
+        path: /usr/bin/python3.8
+    - name: Semanage chronyd port udp 1123
+      seport:
+        ports: 1123
+        proto: udp
+        setype: chronyd_port_t
+        state: present
+    - name: Set SELINUX to permissive
+      ansible.builtin.lineinfile:
+        path: /etc/selinux/config
+        regexp: "^SELINUX="
+        line: SELINUX=permissive
+    - name: "Deploy docker-stop-1M script"
+      ansible.builtin.copy:
+        content: |
+          #!/bin/bash
+          docker ps -f status=running --format '{{ '{{' }}.ID}}: {{ '{{' }}.RunningFor}}' | awk '/months/ && $2 > 1 { print $0 }'|cut -f1 -d':' | xargs docker stop
+        dest: /usr/bin/docker-stop-1M
+        owner: root
+        group: root
+        mode: '0755'
+  post_tasks:
+    - name: Add groups to Galaxy user
+      ansible.builtin.user:
+        name: galaxy
+        groups: condor,docker
+        append: true
+    - name: Ensure Docker directory extists
+      ansible.builtin.file:
+        state: directory
+        path: /etc/docker
+        mode: '0755'
+    - name: Copy Docker daemon.json
+      ansible.builtin.copy:
+        src: compute_workers/daemon.json
+        dest: /etc/docker/daemon.json
+        mode: '0644'
+    - name: Restart Docker service, in all cases
+      ansible.builtin.service:
+        name: docker
+        state: restarted
+    - name: Set authorized SSH key (galaxy user)
+      ansible.posix.authorized_key:
+        user: "{{ galaxy_user.name }}"
+        state: present
+        key: "{{ item }}"
+      loop:
+        - "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBOBINXdjILF6x3WuppXyq6J2a2oSLR6waZ6txgjYJogHdIKPbI0TdReCv4EVxxYRY/NqGpHbjkqfRTsf2VgoU3U= mk@galaxy-mira"
+        - "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBACB5Q5blymkTIRSzVzXITOGvBuI7W0L9Ykwfz8LJGPraaGVPiezzFGvjhqwX+EyCqQPt7JprR5mimJRw/JN3nBXWAHjekvmB5FuILkk6m5fOiQJ5QhRMyQ5GfxODAvGbHpTuWHbYJLWD5fhcboKPxlXOWy4xY9kDZVuQvEKisNKYBsFLA== sanjay"
+        - "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBABRaLHL8mgW86rbtdUh6TY4rs7/la8hAGeSQ3jBF7LMwYZnbS32YDMYvDq3KgNu5WqSMFvkxNm3vfTAbd8CXBfakwDBFBaD9kO0b2t4/p4VoFUsd3B2OvmTR7Bsg7OxTGJJ7aUP/SzTg+Z4NzsmHwQ9h31gfI7n/buZD4S1edQke19Y6w== dominguj@informatik.uni-freiburg.de"
+  roles:
+    - geerlingguy.repo-epel
+    - usegalaxy_eu.handy.os_setup
+    - usegalaxy-eu.autoupdates
+    - influxdata.chrony
+    - autofs
+    - galaxyproject.cvmfs
+    - geerlingguy.java
+    - geerlingguy.docker
+    - usegalaxy-eu.logrotate
+    - htcondor_client
+    - role: usegalaxy-eu.fslimit
+      vars:
+        ulimit_fsize_unit: "condor.service"
+        ulimit_fsize_soft: 10740000000
+        ulimit_fsize_hard: 26840000000
+
