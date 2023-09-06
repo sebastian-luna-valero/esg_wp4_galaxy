@@ -1,0 +1,39 @@
+---
+- name: "Deploy script"
+  copy:
+    content: |
+        #!/bin/bash
+        cd {{ galaxy_root }};
+        for dir in {config,custom-tools,mutable-config,mutable-data,server,venv,tool-data}; do
+            if [ -d $dir ]; then
+                echo "Syncing $dir"
+                rsync -avr --delete --exclude node_modules --exclude .git --exclude __pycache__ $dir/ {{ galaxy_nfs_location }}/$dir/
+            else
+                echo "Skipping $dir"
+            fi
+        done;
+        if [ -d shed_tools-local ]; then
+            echo "Syncing shed_tools-local"
+            rsync -avr --delete --exclude .hg shed_tools-local/ {{ galaxy_nfs_location }}/shed_tools/
+        else
+            echo "Skipping shed_tools-local"
+        fi
+    dest: /usr/bin/galaxy-sync-to-nfs
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create cron job to sync Galaxy to NFS
+  cron:
+    name: "Sync Galaxy to NFS"
+    minute: 30
+    hour: 2
+    job: /usr/bin/galaxy-sync-to-nfs
+    user: root
+    state: present
+
+- name: "Execute the script. Syncing in progress."
+  command: /usr/bin/galaxy-sync-to-nfs
+  become: true
+  become_user: root
+  when: execute_galaxy_sync_to_nfs

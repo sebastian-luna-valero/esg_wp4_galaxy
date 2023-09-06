@@ -72,6 +72,9 @@ conda_prefix_dir: /opt/miniconda
 #     owner: root
 #     group: root
 
+# rsync to nfs
+galaxy_nfs_location: /data/galaxy_main
+
 # Certbot
 certbot_admin_email: sanjaysrikakulam@gmail.com
 certbot_virtualenv_package_name: python3-virtualenv

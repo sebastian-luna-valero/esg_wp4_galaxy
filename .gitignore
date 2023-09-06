@@ -25,3 +25,4 @@ ansible/roles/*
 !ansible/roles/usegalaxy-eu.webhooks
 !ansible/roles/usegalaxy-eu.fix-galaxy-server-dir
 !ansible/roles/htcondor_client
+!ansible/roles/usegalaxy-eu.rsync-to-nfs
