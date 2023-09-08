@@ -352,7 +352,7 @@ flower_app_dir: "{{ galaxy_root }}"
 flower_log_file: /var/log/flower
 flower_python_path: "{{ galaxy_root }}/server/lib"
 flower_venv_dir: "{{ galaxy_venv_dir }}"
-flower_db_file: "{{ galaxy_root }}/var/flower.db"
+flower_db_file: "flower.db"
 flower_app_name: galaxy.celery
 flower_persistent: true
 flower_broker_api: "https://flower:{{ rabbitmq_password_flower }}@mqesginstance.esgwps.uno/api/"

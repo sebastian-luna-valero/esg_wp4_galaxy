@@ -74,6 +74,7 @@
     - usegalaxy-eu.autoupdates
     - influxdata.chrony
     - autofs
+    - usegalaxy_eu.apptainer
     - galaxyproject.cvmfs
     - geerlingguy.java
     - geerlingguy.docker
@@ -82,6 +83,5 @@
     - role: usegalaxy-eu.fslimit
       vars:
         ulimit_fsize_unit: "condor.service"
-        ulimit_fsize_soft: 10740000000
-        ulimit_fsize_hard: 26840000000
-
+        ulimit_fsize_soft: 10740000000  # 10GB (adjust according to your storage capacity)
+        ulimit_fsize_hard: 26840000000  # 25GB (adjust according to your storage capacity)
