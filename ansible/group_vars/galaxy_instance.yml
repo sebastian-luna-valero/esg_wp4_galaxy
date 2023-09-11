@@ -50,16 +50,12 @@ autofs_service:
   enable: true
 autofs_mount_points:
   - data
-  - jwd
   - usrlocal
 autofs_conf_files:
   data:
-    - galaxy_data      -rw,hard,nosuid      192.52.43.77:/nfs_shares/&
-    - galaxy_main      -rw,hard,nosuid      192.52.43.77:/nfs_shares/&
-  jwd:
-    - jwd01            -rw,hard,nosuid      192.52.43.77:/nfs_shares/&
+    - galaxy_data      -rw,hard,nosuid      192.52.43.233:/nfs_shares/&
   usrlocal:
-    - /usr/local/tools   -rw,hard,nosuid     192.52.43.77:/nfs_shares/tools
+    - /usr/local/tools   -rw,hard,nosuid     192.52.43.233:/nfs_shares/tools
 
 # Miniconda role variables (galaxyproject.miniconda)
 conda_prefix_dir: /opt/miniconda
@@ -352,7 +348,7 @@ flower_app_dir: "{{ galaxy_root }}"
 flower_log_file: /var/log/flower
 flower_python_path: "{{ galaxy_root }}/server/lib"
 flower_venv_dir: "{{ galaxy_venv_dir }}"
-flower_db_file: "flower.db"
+flower_db_file: "{{ celery_root_dir }}/flower.db"
 flower_app_name: galaxy.celery
 flower_persistent: true
 flower_broker_api: "https://flower:{{ rabbitmq_password_flower }}@mqesginstance.esgwps.uno/api/"

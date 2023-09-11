@@ -5,7 +5,7 @@
   vars:
     hostname: "{{ inventory_hostname }}"
     # Make sure that this directory exists otherwise rustus service won't start
-    upload_dir_main: /data/jwd01/tus_upload/main
+    upload_dir_main: /data/galaxy_data/tus_upload/main
     rustus_version: "0.7.4"
     rustus_instances:
       - name: main_uploads

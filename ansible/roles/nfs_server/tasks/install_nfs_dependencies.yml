@@ -7,8 +7,11 @@
       - firewalld
     state: present
 
-- name: Start and enable nfs-server
+- name: Start and enable nfs-server and firewalld
   systemd:
-    name: nfs-server
+    name: "{{ item }}"
     state: started
     enabled: true
+  loop:
+    - nfs-server
+    - firewalld

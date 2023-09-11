@@ -1,5 +1,5 @@
 [galaxy_instance]
-galaxyesginstance.esgwps.uno ansible_host=192.52.44.140
+galaxyesginstance.esgwps.uno ansible_host=192.52.44.128
 
 [dbserver:children]
 galaxy_instance
@@ -11,10 +11,7 @@ mqesginstance.esgwps.uno ansible_host=192.52.40.130
 uploadesginstance.esgwps.uno ansible_host=192.52.44.123
 
 [nfs_server]
-nfsesginstance.esgwps.uno ansible_host=192.52.43.77
-
-[compute_workers]
-computeesginstance.esgwps.uno ansible_host=192.52.44.134
+nfsesginstance.esgwps.uno ansible_host=192.52.43.233
 
 [all:vars]
 ansible_ssh_user=rocky

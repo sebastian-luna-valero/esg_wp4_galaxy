@@ -10,7 +10,7 @@ autofs_mount_points:
 #Autofs mount points configuration files
 autofs_conf_files:
   data:
-    - db      -rw,hard,nosuid      192.52.43.77:/nfs_shares/&
-    - jwd01   -rw,hard,nosuid      192.52.43.77:/nfs_shares/&
+    - db      -rw,hard,nosuid      192.52.43.233:/nfs_shares/&
+    - jwd01   -rw,hard,nosuid      192.52.43.233:/nfs_shares/&
   usrlocal:
-    - /usr/local/tools   -rw,hard,nosuid     192.52.43.77:/nfs_shares/tools
+    - /usr/local/tools   -rw,hard,nosuid     192.52.43.233:/nfs_shares/tools

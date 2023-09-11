@@ -1,0 +1,58 @@
+# HTCondor configuration for Virtual Galaxy submit host
+CONDOR_HOST = galaxyesginstance.esgwps.uno
+ALLOW_WRITE = 192.52.40.0/21
+ALLOW_READ = $(ALLOW_WRITE)
+ALLOW_NEGOTIATOR = 192.52.44.128,$(CONDOR_HOST),$(ALLOW_WRITE)
+
+ALLOW_ADMINISTRATOR = $(ALLOW_NEGOTIATOR)
+
+ALLOW_OWNER = $(ALLOW_ADMINISTRATOR)
+ALLOW_CLIENT = *
+DAEMON_LIST = COLLECTOR, NEGOTIATOR, MASTER, SCHEDD, STARTD
+# Define FS and UID domain
+FILESYSTEM_DOMAIN = esgwpfour.uni-freiburg.de
+UID_DOMAIN = esgwpfour.uni-freiburg.de
+TRUST_UID_DOMAIN = True
+SOFT_UID_DOMAIN = True
+
+SYSTEM_PERIODIC_HOLD = \
+  (JobStatus == 1 || JobStatus == 2) && \
+  ((time() - JobStartDate) >= (2592000))
+SYSTEM_PERIODIC_HOLD_REASON = \
+  ifThenElse(((time() - JobStartDate) >= (2592000), \
+             "Maximum wallclock time exceeded", \
+                 "Unspecified reason")
+SYSTEM_PERIODIC_REMOVE = \
+  (JobStatus == 5 && time() - EnteredCurrentStatus > 172800)
+
+NETWORK_INTERFACE = eth0
+
+MASTER_UPDATE_INTERVAL = 150
+CLASSAD_LIFETIME = 300
+NEGOTIATOR_INTERVAL = 15
+NEGOTIATOR_UPDATE_INTERVAL = 100
+SCHEDD_INTERVAL = 60
+JOB_START_COUNT = 250
+JOB_START_DELAY = 0
+CLAIM_WORKLIFE = 120
+NEGOTIATOR_POST_JOB_RANK = isUndefined(RemoteOwner) * (10000 - TotalLoadAvg)
+
+NUM_SLOTS = 1
+NUM_SLOTS_TYPE_1 = 1
+SLOT_TYPE_1 = 100%
+SLOT_TYPE_1_PARTITIONABLE = True
+ALLOW_PSLOT_PREEMPTION = False
+STARTD.PROPORTIONAL_SWAP_ASSIGNMENT = True
+UPDATE_INTERVAL = 120
+# END MANAGED BLOCK
+# Advertise the GPUs
+# use feature : GPUs
+# GPU_DISCOVERY_EXTRA = -extra
+GalaxyGroup = "compute"
+GalaxyCluster = "denbi"
+GalaxyDockerHack = True
+STARTD_ATTRS = GalaxyGroup, GalaxyCluster, GalaxyDockerHack
+Rank = StringListMember(MY.GalaxyGroup, TARGET.Group)
+BASE_CGROUP = /system.slice/condor.service
+CGROUP_MEMORY_LIMIT_POLICY = hard
+RESERVED_MEMORY = 1024

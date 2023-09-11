@@ -45,10 +45,9 @@ nfs_share_root: "/nfs_shares"
 
 # A dictionary of device names to format and mount and their mount points
 devices:
-  galaxy_data: /dev/vdb
-  jwd01: /dev/vdc
-  tools: /dev/vdd
-  galaxy_main: /dev/vde
+  tools: /dev/vdb
+  galaxy_data: /dev/vdc
+
 
 # NFS exports list
 # Here we need to export only the root NFS share because all the other shares are mounted as subdirectories of the root NFS share.

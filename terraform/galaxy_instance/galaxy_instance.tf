@@ -15,7 +15,7 @@ resource "openstack_compute_instance_v2" "galaxy_instance" {
   block_device {
     uuid                  = data.openstack_images_image_v2.os_image.id
     source_type           = "image"
-    volume_size           = 100
+    volume_size           = 350
     destination_type      = "volume"
     boot_index            = 0
     delete_on_termination = true

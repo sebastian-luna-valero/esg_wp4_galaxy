@@ -32,20 +32,14 @@ resource "openstack_compute_instance_v2" "nfs_instance" {
   EOF
 }
 
-variable "number_of_nfs_volumes" {
-  default = 2
+resource "openstack_blockstorage_volume_v2" "nfs_galaxy_data_volume" {
+  name  = "esg_wp4_galaxy_nfs_share_data"
+  size  = 250
 }
 
-resource "openstack_blockstorage_volume_v2" "nfs_volumes" {
-  count = var.number_of_nfs_volumes
-  name  = format("esg_wp4_galaxy_nfs_share_%s", count.index)
-  size  = 200
-}
-
-resource "openstack_compute_volume_attach_v2" "_nfs_volmes_attachments" {
-  count       = var.number_of_nfs_volumes
+resource "openstack_compute_volume_attach_v2" "_nfs_galaxy_data_va" {
   instance_id = openstack_compute_instance_v2.nfs_instance.id
-  volume_id   = openstack_blockstorage_volume_v2.nfs_volumes.*.id[count.index]
+  volume_id   = openstack_blockstorage_volume_v2.nfs_galaxy_data_volume.id
 }
 
 resource "openstack_blockstorage_volume_v2" "nfs_tools_volume" {
@@ -53,17 +47,7 @@ resource "openstack_blockstorage_volume_v2" "nfs_tools_volume" {
   size  = 100
 }
 
-resource "openstack_compute_volume_attach_v2" "_nfs_tools_volmes_attachments" {
+resource "openstack_compute_volume_attach_v2" "_nfs_tools_va" {
   instance_id = openstack_compute_instance_v2.nfs_instance.id
   volume_id   = openstack_blockstorage_volume_v2.nfs_tools_volume.id
-}
-
-resource "openstack_blockstorage_volume_v2" "nfs_galaxy_main_volume" {
-  name  = "esg_wp4_galaxy_nfs_main"
-  size  = 100
-}
-
-resource "openstack_compute_volume_attach_v2" "_nfs_galaxy_main_volmes_attachments" {
-  instance_id = openstack_compute_instance_v2.nfs_instance.id
-  volume_id   = openstack_blockstorage_volume_v2.nfs_galaxy_main_volume.id
 }

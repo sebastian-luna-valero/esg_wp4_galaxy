@@ -29,5 +29,5 @@ postgresql_conf:
   - log_checkpoints: "on"
   - log_min_duration_statement: 500
 postgresql_pg_hba_conf:
-  - "host    postgres        galaxy          192.52.44.140/21      md5"
-  - "host    galaxy          galaxy          192.52.44.140/21      md5"
+  - "host    postgres        galaxy          192.52.44.128/21      md5"
+  - "host    galaxy          galaxy          192.52.44.128/21      md5"
