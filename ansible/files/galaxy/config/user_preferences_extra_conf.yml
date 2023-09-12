@@ -50,6 +50,7 @@ preferences:
         options:
           - ["Select the remote resources", None]
           - ["default - Galaxy will decide where to put your job", None]
+          - ["Bari (Italy) - INFN", egi-pulsar]
 
   ega_account:
     description: Your EGA (European Genome Archive) account
