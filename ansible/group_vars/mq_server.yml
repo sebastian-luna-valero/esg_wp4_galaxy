@@ -64,6 +64,9 @@ rabbitmq_users:
     password: "{{ rabbitmq_password_flower }}"
     tags: administrator
     vhost: galaxy
+  - user: galaxy_egi01
+    password: "{{ rabbitmq_password_galaxy_egi01 }}"
+    vhost: /pulsar/galaxy_egi01
 
 rabbitmq_plugins:
   - rabbitmq_management
