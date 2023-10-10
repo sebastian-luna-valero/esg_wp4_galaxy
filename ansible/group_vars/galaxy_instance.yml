@@ -1,4 +1,8 @@
 ---
+# For restricted datasets (deferred data and other test stuff)
+galaxy_restricted_data_dir: '/var/www/galaxy-restricted-data'
+galaxy_restricted_data_allowed_ip: 192.52.44.223
+
 # Role: usegalaxy_eu.handy.os_setup
 enable_hostname: true
 enable_powertools: true
@@ -317,6 +321,8 @@ galaxy_config_templates:
     dest: "{{ galaxy_config_dir }}/file_sources_conf.yml"
   - src: "{{ galaxy_config_template_src_dir }}/config/object_store_conf.xml.j2"
     dest: "{{ galaxy_config['galaxy']['object_store_config_file'] }}"
+  - src: "{{ galaxy_config_template_src_dir }}/config/pulsar_app.yml"
+    dest: "{{ galaxy_config_dir }}/pulsar_app.yml"
   # - src: "{{ galaxy_config_template_src_dir }}/config/welcome.html"
   #   dest: "{{ galaxy_mutable_config_dir }}/welcome.html"
 

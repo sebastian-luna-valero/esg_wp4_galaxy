@@ -70,6 +70,14 @@
         state: present
         reload: true
         sysctl_set: true
+    # For restricted datasets (deferred data and other test stuff)
+    - name: Create a restricted data directory
+      file:
+        path: "{{ galaxy_restricted_data_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
   post_tasks:
     - name: Append some users to the systemd-journal group
       user:

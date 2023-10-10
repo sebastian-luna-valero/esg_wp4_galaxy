@@ -196,4 +196,11 @@ server {
 	add_header X-Robots-Tag none;
 
 	client_max_body_size 1G; # aka max upload size, defaults to 1M
+
+	# Test restricted download
+	location /restricted {
+		alias {{ galaxy_restricted_data_dir }};
+		allow {{ galaxy_restricted_data_allowed_ip }};
+		deny all;
+	}
 }
