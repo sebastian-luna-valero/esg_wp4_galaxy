@@ -48,7 +48,6 @@ preferences:
         type: select
         required: False
         options:
-          - ["Select the remote resources", None]
           - ["default - Galaxy will decide where to put your job", None]
           - ["Freiburg (Germany) - Sanjay's test Pulsar", sanjay-pulsar]
           - ["Freiburg (Germany) - Dummy", dummy]
