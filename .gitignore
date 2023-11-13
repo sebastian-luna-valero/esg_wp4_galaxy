@@ -27,3 +27,4 @@ ansible/roles/*
 !ansible/roles/usegalaxy-eu.fix-galaxy-server-dir
 !ansible/roles/htcondor_client
 !ansible/roles/usegalaxy-eu.rsync-to-nfs
+!ansible/roles/pulsar_htcondor_master_and_client

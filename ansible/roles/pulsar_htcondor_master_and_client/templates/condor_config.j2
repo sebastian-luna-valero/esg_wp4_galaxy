@@ -1,0 +1,47 @@
+ETC = /etc/condor
+CONDOR_HOST = {{ condor_host }}
+ALLOW_WRITE = {{ condor_allow_write }}
+ALLOW_READ = $(ALLOW_WRITE)
+ALLOW_ADMINISTRATOR = {{ condor_allow_administrator }}
+ALLOW_NEGOTIATOR = $(ALLOW_ADMINISTRATOR)
+ALLOW_CONFIG = $(ALLOW_ADMINISTRATOR)
+ALLOW_DAEMON = $(ALLOW_ADMINISTRATOR)
+ALLOW_OWNER = $(ALLOW_ADMINISTRATOR)
+ALLOW_CLIENT = *
+DAEMON_LIST = COLLECTOR, NEGOTIATOR, MASTER, SCHEDD, STARTD
+FILESYSTEM_DOMAIN = {{ condor_fs_domain }}
+UID_DOMAIN = {{ condor_uid_domain }}
+TRUST_UID_DOMAIN = True
+SOFT_UID_DOMAIN = True
+CLAIM_PARTITIONABLE_LEFTOVERS = True
+NUM_SLOTS = 1
+NUM_SLOTS_TYPE_1 = 1
+SLOT_TYPE_1 = 100%
+SLOT_TYPE_1_PARTITIONABLE = True
+ALLOW_PSLOT_PREEMPTION = False
+STARTD.PROPORTIONAL_SWAP_ASSIGNMENT = True
+MASTER_UPDATE_INTERVAL = 150
+UPDATE_INTERVAL = 120
+BASE_CGROUP = /system.slice/condor.service
+CGROUP_MEMORY_LIMIT_POLICY = soft
+RESERVED_MEMORY = 1024
+
+# Master exclusive configuration
+SYSTEM_PERIODIC_HOLD = \
+  (JobStatus == 1 || JobStatus == 2) && \
+  ((time() - JobStartDate) >= (2592000))
+SYSTEM_PERIODIC_HOLD_REASON = \
+  ifThenElse(((time() - JobStartDate) >= (2592000), \
+             "Maximum wallclock time exceeded", \
+                 "Unspecified reason")
+SYSTEM_PERIODIC_REMOVE = \
+  (JobStatus == 5 && time() - EnteredCurrentStatus > 172800)
+NETWORK_INTERFACE = eth0
+CLASSAD_LIFETIME = 300
+NEGOTIATOR_INTERVAL = 15
+NEGOTIATOR_UPDATE_INTERVAL = 100
+SCHEDD_INTERVAL = 60
+JOB_START_COUNT = 250
+JOB_START_DELAY = 0
+CLAIM_WORKLIFE = 120
+NEGOTIATOR_POST_JOB_RANK = isUndefined(RemoteOwner) * (10000 - TotalLoadAvg)
