@@ -200,7 +200,9 @@ server {
 	# Test restricted download
 	location /restricted {
 		alias {{ galaxy_restricted_data_dir }};
-		allow {{ galaxy_restricted_data_allowed_ip }};
+		{% for ip in galaxy_restricted_data_allowed_ip %}
+		allow {{ ip }};
+		{% endfor %}
 		deny all;
 	}
 }

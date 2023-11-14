@@ -1,7 +1,12 @@
 ---
 # For restricted datasets (deferred data and other test stuff)
 galaxy_restricted_data_dir: '/var/www/galaxy-restricted-data'
-galaxy_restricted_data_allowed_ip: 192.52.44.223
+galaxy_restricted_data_allowed_ip:
+  - 192.52.44.223
+  - 10.5.68.0/24
+  - 10.113.3.8
+  - 10.113.3.13
+  - 193.190.80.1
 
 # Role: usegalaxy_eu.handy.os_setup
 enable_hostname: true

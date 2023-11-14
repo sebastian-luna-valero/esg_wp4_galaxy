@@ -69,7 +69,6 @@ destinations:
     runner: condor
     params:
       metadata_strategy: extended
-      tool_evaluation_strategy: remote
     max_accepted_cores: 16
     max_accepted_mem: 32
     min_accepted_gpus: 0
@@ -139,9 +138,27 @@ destinations:
         - docker
         - condor-tpv
 
-  pulsar_sanjay_tpv:
+  # pulsar_sanjay_tpv:
+  #   inherits: pulsar_default
+  #   runner: pulsar_sanjay_runner
+  #   max_accepted_cores: 8
+  #   max_accepted_mem: 15
+  #   min_accepted_gpus: 0
+  #   max_accepted_gpus: 0
+  #   env:
+  #     SINGULARITY_CACHEDIR: "/pulsar_data/container_cache"
+  #   params:
+  #     jobs_directory: "/pulsar_data/staging/ps01"
+  #     persistence_directory: "/pulsar_data/persisted_data/ps01"
+  #     metadata_strategy: extended
+  #     tool_evaluation_strategy: remote
+  #   scheduling:
+  #     require:
+  #       - sanjay-pulsar
+
+  pulsar_de01:
     inherits: pulsar_default
-    runner: pulsar_sanjay_runner
+    runner: pulsar_de01
     max_accepted_cores: 8
     max_accepted_mem: 15
     min_accepted_gpus: 0
@@ -152,10 +169,27 @@ destinations:
       jobs_directory: "/pulsar_data/staging/ps01"
       persistence_directory: "/pulsar_data/persisted_data/ps01"
       metadata_strategy: extended
-      tool_evaluation_strategy: remote
     scheduling:
       require:
-        - sanjay-pulsar
+        - pulsar_de01
+
+  pulsar_be01:
+    inherits: pulsar_default
+    runner: pulsar_be01
+    max_accepted_cores: 8
+    max_accepted_mem: 15
+    min_accepted_gpus: 0
+    max_accepted_gpus: 0
+    env:
+      SINGULARITY_CACHEDIR: "/data/share/var/database/container_cache"
+    params:
+      jobs_directory: "/data/share/esg/staging"
+      persistence_directory: "/data/share/esg/persisted_data"
+      metadata_strategy: extended
+    scheduling:
+      require:
+        - pulsar_be01
+
 
   ################################
   # EMBEDDED PULSAR DESTINATIONS #

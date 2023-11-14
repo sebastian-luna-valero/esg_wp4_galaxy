@@ -67,6 +67,9 @@ rabbitmq_users:
   - user: esg_pulsar01
     password: "{{ rabbitmq_password_esg_pulsar01 }}"
     vhost: /pulsar/esg_pulsar01
+  - user: pulsar_be01
+    password: "{{ rabbitmq_password_pulsar_be01 }}"
+    vhost: /pulsar/pulsar_be01
 
 rabbitmq_plugins:
   - rabbitmq_management
