@@ -220,6 +220,7 @@
     - usegalaxy-eu.log-cleaner
     - usegalaxy_eu.tpv_auto_lint
     - devsec.hardening.ssh_hardening
+    - tpv_metascheduler_api
 
     ## If this server is going to act as the worker then,
     - usegalaxy_eu.apptainer

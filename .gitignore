@@ -28,3 +28,4 @@ ansible/roles/*
 !ansible/roles/htcondor_client
 !ansible/roles/usegalaxy-eu.rsync-to-nfs
 !ansible/roles/pulsar_htcondor_master_and_client
+!ansible/roles/tpv_metascheduler_api
