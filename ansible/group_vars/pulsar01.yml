@@ -80,26 +80,19 @@ docker_users:
   - condor
 docker_daemon_options: {}
 
-# Role: autofs
-autofs_service:
-  install: true
-  enable: true
-autofs_mount_points:
-  - data
-  - usrlocal
-autofs_conf_files:
-  data:
-    - galaxy_data      -rw,hard,nosuid      192.52.43.233:/nfs_shares/&
-    - twd01            -rw,hard,nosuid      zfs0f.galaxyproject.eu:/export/twd01
-  usrlocal:
-    - /usr/local/tools   -rw,hard,nosuid     192.52.43.233:/nfs_shares/tools
-    - /opt/galaxy        -rw,hard,nosuid     192.52.43.233:/nfs_shares/galaxy_main
+# # Role: autofs
+# autofs_service:
+#   install: true
+#   enable: true
+# autofs_mount_points:
+#   - data
+# autofs_conf_files:
+#   data:
+#     - twd01            -rw,hard,nosuid      zfs0f.galaxyproject.eu:/export/twd01
 
-# Role: htcondor_client
-condor_host: "galaxyesginstance.esgwps.uno"
+# Role: pulsar_htcondor_master_and_client
+condor_host: "192.52.44.223"
 condor_allow_write: "192.52.40.0/21"
-condor_allow_administrator: "192.52.40.0/21, 192.52.44.128"
-condor_fs_domain: esgwpfour.uni-freiburg.de
-condor_uid_domain: esgwpfour.uni-freiburg.de
-condor_galaxy_group: compute
-condor_galaxy_docker_hack: "True"
+condor_allow_administrator: "192.52.40.0/21, 192.52.44.223"
+condor_fs_domain: p01.uni-freiburg.de
+condor_uid_domain: p01.uni-freiburg.de

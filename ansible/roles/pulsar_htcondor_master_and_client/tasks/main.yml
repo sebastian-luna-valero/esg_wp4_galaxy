@@ -1,0 +1,72 @@
+---
+- name: Add and import the RPM signing key for HTCondor
+  ansible.builtin.rpm_key:
+    key: "https://research.cs.wisc.edu/htcondor/yum/RPM-GPG-KEY-HTCondor"
+    state: present
+
+- name: Install HTCondor repo file for RHEL8
+  ansible.builtin.yum_repository:
+    file: "htcondor-stable-rhel8"
+    name: "htcondor-stable-rhel8"
+    description: "HTCondor Stable RPM Repository for Redhat Enterprise Linux 8"
+    baseurl: "https://research.cs.wisc.edu/htcondor/yum/stable/8.8/rhel8"
+    gpgcheck: "1"
+    enabled: "1"
+    state: present
+  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version == '8'
+
+- name: Install condor package and firewalld
+  package:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  loop:
+    - condor-all-8.8.15
+    - firewalld
+
+- name: Enable and start firewalld and condor services
+  ansible.builtin.service:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  loop:
+    - firewalld
+    - condor
+
+- name: Open Port for HTCondor
+  ansible.posix.firewalld:
+    port: 9618/tcp
+    state: enabled
+    permanent: true
+    immediate: true
+
+- name: Require local config
+  ansible.builtin.lineinfile:
+    dest: /etc/condor/condor_config
+    regexp: '^ *REQUIRE_LOCAL_CONFIG_FILE.*'
+    line: 'REQUIRE_LOCAL_CONFIG_FILE = true'
+  notify: reload condor
+
+- name: Copy local config
+  ansible.builtin.template:
+    src: condor_config.j2
+    dest: /etc/condor/condor_config.local
+    owner: root
+    group: root
+    mode: 0644
+  when:
+  notify: reload condor
+
+- name: Condor walltime script
+  ansible.builtin.copy:
+    dest: /etc/condor/meta_walltime.py
+    src: meta_walltime.py
+    mode: 0755
+  notify: reload condor
+
+- name: Populate service facts
+  ansible.builtin.service_facts:
+
+- name: Systemd daemon reload
+  ansible.builtin.systemd:
+    daemon_reload: true

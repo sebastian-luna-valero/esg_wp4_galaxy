@@ -1,0 +1,7 @@
+private_token: {{ pulsar_private_token }}
+staging_directory: /data/twd01/pulsar_staging/
+tool_dependency_dir: /data/galaxy_data/galaxy_db/pulsar_dependencies/
+
+managers:
+  _default_:
+    type: queued_condor

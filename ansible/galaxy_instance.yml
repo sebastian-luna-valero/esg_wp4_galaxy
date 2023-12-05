@@ -70,6 +70,14 @@
         state: present
         reload: true
         sysctl_set: true
+    # For restricted datasets (deferred data and other test stuff)
+    - name: Create a restricted data directory
+      file:
+        path: "{{ galaxy_restricted_data_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
   post_tasks:
     - name: Append some users to the systemd-journal group
       user:
@@ -132,10 +140,17 @@
         state: restarted
   roles:
     - geerlingguy.repo-epel
+    - usegalaxy_eu.handy.os_setup
+    - usegalaxy-eu.autoupdates
+    - influxdata.chrony
+    - autofs
 
     ## Install miniconda, create a _galaxy_ environment and install Packages
     ## Galaxy will use the virtualenv from this conda environment (see
-    ## galaxy_virtualenv_command) in the group_vars/sn06.yml
+    ## galaxy_virtualenv_command) in the group_vars
+    ## This role should come after the autofs role as the conda_prefix_dir is
+    ## defined to use the tools NFS share, so it needs to be mounted first
+    ## and this NFS share must also be mounted on the compute nodes
     - role: galaxyproject.miniconda
       vars:
         miniconda_prefix: "{{ conda_prefix_dir }}"
@@ -144,10 +159,6 @@
           - python=3.11
           - pip
 
-    - usegalaxy_eu.handy.os_setup
-    - usegalaxy-eu.autoupdates
-    - influxdata.chrony
-    - autofs
     - galaxyproject.cvmfs
 
     # Setup Galaxy user
@@ -198,7 +209,7 @@
         galaxy_manage_gravity: false
 
     ## Extras!
-    # - usegalaxy-eu.rsync-to-nfs
+    - usegalaxy-eu.rsync-to-nfs
     - usegalaxy_eu.flower
     - usegalaxy-eu.fix-galaxy-server-dir
     - hxr.install-to-venv
@@ -209,6 +220,7 @@
     - usegalaxy-eu.log-cleaner
     - usegalaxy_eu.tpv_auto_lint
     - devsec.hardening.ssh_hardening
+    - tpv_metascheduler_api
 
     ## If this server is going to act as the worker then,
     - usegalaxy_eu.apptainer

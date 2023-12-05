@@ -196,4 +196,29 @@ server {
 	add_header X-Robots-Tag none;
 
 	client_max_body_size 1G; # aka max upload size, defaults to 1M
+
+	# Test restricted download
+	location /restricted {
+		alias {{ galaxy_restricted_data_dir }};
+		{% for ip in galaxy_restricted_data_allowed_ip %}
+		allow {{ ip }};
+		{% endfor %}
+		deny all;
+	}
+
+	{% if tpv_metascheduler_api_nginx_conf %}
+	location {{ tpv_metascheduler_api_proxy_config.location }} {
+		rewrite  ^{{ tpv_metascheduler_api_proxy_config.location }}(.*)  /$1 break;
+        proxy_pass {{ tpv_metascheduler_api_proxy_config.proxy_pass_protocol }}://{{ tpv_metascheduler_api_proxy_config.proxy_pass_host }}:{{ tpv_metascheduler_api_proxy_config.proxy_pass_port }};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+	}
+
+	location {{ tpv_metascheduler_api_proxy_config.location }}version {
+		alias {{ tpv_metascheduler_api_dir }}/version;
+		add_header Content-Type text/plain;
+        }
+	{% endif %}
 }

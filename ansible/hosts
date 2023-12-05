@@ -13,6 +13,12 @@ uploadesginstance.esgwps.uno ansible_host=192.52.44.123
 [nfs_server]
 nfsesginstance.esgwps.uno ansible_host=192.52.43.233
 
+[compute_workers]
+computeworker0.esgwps.uno ansible_host=192.52.40.80
+
+[pulsar01]
+pulsar01.esgwps.uno ansible_host=192.52.44.223
+
 [all:vars]
 ansible_ssh_user=rocky
 ansible_ssh_private_key_file=/home/sanjay/.ssh/freiburg_gp_ecdsa

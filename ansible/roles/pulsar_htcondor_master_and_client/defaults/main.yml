@@ -1,0 +1,20 @@
+---
+# Variables you must configure in your playbook so config files can be generated
+# # condor master host
+# condor_host: "condor.example.com"
+# condor_host_ip: "10.0.0.16"
+
+# condor_allow_write: "10.0.0.0/24"
+# condor_allow_administrator: "10.0.0.0/24, {{ condor_host_ip }}"
+
+# # FS and UID domain must be the same as the Galaxy server (can be any arbitrary string),
+# so the jobs can access the files and the file system should be mounted on the same path
+# condor_fs_domain: "example.com"
+# condor_uid_domain: "example.com"
+
+# # If you want to group different type of nodes and later you can use them in the submit file
+# or via TPV to route jobs to the right nodes
+# condor_galaxy_group: "compute"
+
+# # If Docker is installed
+# condor_galaxy_docker_hack: "True"

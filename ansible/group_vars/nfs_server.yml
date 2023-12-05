@@ -47,6 +47,7 @@ nfs_share_root: "/nfs_shares"
 devices:
   tools: /dev/vdb
   galaxy_data: /dev/vdc
+  galaxy_main: /dev/vdd
 
 
 # NFS exports list

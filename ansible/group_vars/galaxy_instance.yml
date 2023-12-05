@@ -1,4 +1,13 @@
 ---
+# For restricted datasets (deferred data and other test stuff)
+galaxy_restricted_data_dir: '/var/www/galaxy-restricted-data'
+galaxy_restricted_data_allowed_ip:
+  - 192.52.44.223
+  - 10.5.68.0/24
+  - 10.113.3.8
+  - 10.113.3.13
+  - 193.190.80.1
+
 # Role: usegalaxy_eu.handy.os_setup
 enable_hostname: true
 enable_powertools: true
@@ -54,11 +63,13 @@ autofs_mount_points:
 autofs_conf_files:
   data:
     - galaxy_data      -rw,hard,nosuid      192.52.43.233:/nfs_shares/&
+    - galaxy_main      -rw,hard,nosuid      192.52.43.233:/nfs_shares/&
+    - twd01            -rw,hard,nosuid      zfs0f.galaxyproject.eu:/export/twd01
   usrlocal:
     - /usr/local/tools   -rw,hard,nosuid     192.52.43.233:/nfs_shares/tools
 
 # Miniconda role variables (galaxyproject.miniconda)
-conda_prefix_dir: /opt/miniconda
+conda_prefix_dir: /usr/local/tools/miniconda
 
 # AWS
 # aws_cli_credentials:
@@ -220,6 +231,7 @@ galaxy_tool_data_path: "{{ galaxy_root }}/tool-data"
 __galaxy_shed_tools_dir: "{{ galaxy_shed_tools_dir }}"
 galaxy_backup_configfiles: false
 biotools_content_dir: '{{ galaxy_mutable_data_dir }}/cache/biotools/content'
+galaxy_local_tools_dir: "{{ galaxy_root }}/local_tools"
 
 galaxy_server_dir: "{{ galaxy_root }}/server"
 galaxy_config_dir: "{{ galaxy_root }}/config"
@@ -248,6 +260,7 @@ galaxy_dirs:
   - "{{ galaxy_log_dir }}"
   - "{{ galaxy_config_dir }}/total_perspective_vortex"
   - "{{ tpv_mutable_dir }}"
+  - "{{ galaxy_local_tools_dir }}"
 
 galaxy_instance_hostname: "{{ inventory_hostname }}"
 galaxy_config_style: yaml
@@ -315,6 +328,8 @@ galaxy_config_templates:
     dest: "{{ galaxy_config_dir }}/file_sources_conf.yml"
   - src: "{{ galaxy_config_template_src_dir }}/config/object_store_conf.xml.j2"
     dest: "{{ galaxy_config['galaxy']['object_store_config_file'] }}"
+  - src: "{{ galaxy_config_template_src_dir }}/config/pulsar_app.yml"
+    dest: "{{ galaxy_config_dir }}/pulsar_app.yml"
   # - src: "{{ galaxy_config_template_src_dir }}/config/welcome.html"
   #   dest: "{{ galaxy_mutable_config_dir }}/welcome.html"
 
@@ -359,3 +374,25 @@ flower_ui_users:
     password: "{{ flower_user_password }}"
 flower_environment_variables:
   GALAXY_CONFIG_FILE: "{{ galaxy_config_file }}"
+
+# Local Galaxy tools
+galaxy_local_tools:
+  - plink.xml
+
+# Role: tpv_metascheduler_api
+tpv_metascheduler_api_dir: "/opt/tpv_metascheduler_api"
+tpv_metascheduler_api_repo: "https://github.com/usegalaxy-eu/tpv-metascheduler-api.git"
+tpv_metascheduler_api_commit_id: "main"
+tpv_metascheduler_api_force_checkout: true # discards local changes if any
+tpv_metascheduler_api_venv_dir: "/opt/tpv_metascheduler_api/venv"
+tpv_metascheduler_api_virtualenv_command: "{{ galaxy_virtualenv_command }}"
+tpv_metascheduler_api_systemd_service_name: "tpv_metascheduler_api"
+tpv_metascheduler_api_systemd_service_user: "nginx"
+tpv_metascheduler_api_ssl_certificate: "{{ nginx_conf_ssl_certificate }}"
+tpv_metascheduler_api_ssl_certificate_key: "{{ nginx_conf_ssl_certificate_key }}"
+tpv_metascheduler_api_nginx_conf: true
+tpv_metascheduler_api_proxy_config:
+  location: "/tpv-api/"
+  proxy_pass_host: "127.0.0.1"
+  proxy_pass_port: 8000
+  proxy_pass_protocol: "https"

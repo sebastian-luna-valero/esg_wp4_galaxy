@@ -74,3 +74,5 @@ roles:
     version: main
   - src: usegalaxy_eu.apptainer
     version: 0.0.1
+  - src: galaxyproject.pulsar
+    version: 1.0.10
