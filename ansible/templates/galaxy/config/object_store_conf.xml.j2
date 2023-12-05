@@ -10,5 +10,31 @@
             <extra_dir type="temp" path="/data/galaxy_data/galaxy_db/tmp"/>
             <extra_dir type="job_work" path="/local/jwd01/main"/>
         </backend>
+        <backend id="egi_byos_it_01" type="generic_s3" allow_selection="false" weight="0" store_by="uuid" name="Short term storage for method development">
+            <description>Test object store in the EGI Federated Cloud (INFN-CLOUD-BARI)
+            </description>
+            <badges>
+                <less_stable />
+                <not_backed_up />
+                <short_term>The data stored here is purged after a week.</short_term>
+            </badges>
+            <location latitude="41.11148" longitude="16.8554" />
+            <auth access_key="{{ egi_byos_it_01.usegalaxy_eu.access_key }}" secret_key="{{ egi_byos_it_01.usegalaxy_eu.secret_key }}" />
+            <bucket name="{{ egi_byos_it_01.usegalaxy_eu.bucket_name }}" use_reduced_redundancy="False" max_chunk_size="250" />
+            <connection host="byos-it-api.vm.fedcloud.eu" port="443" is_secure="True" conn_path="" multipart="True"/>
+        </backend>
+        <backend id="egi_byos_sk_01" type="generic_s3" allow_selection="false" weight="0" store_by="uuid" name="Short term storage for method development">
+            <description>Test object store in the EGI Federated Cloud (IISAS-FedCloud)
+            </description>
+            <badges>
+                <less_stable />
+                <not_backed_up />
+                <short_term>The data stored here is purged after a week.</short_term>
+            </badges>
+            <location latitude="48.170333" longitude="17.069750" />
+            <auth access_key="{{ egi_byos_sk_01.usegalaxy_eu.access_key }}" secret_key="{{ egi_byos_sk_01.usegalaxy_eu.secret_key }}" />
+            <bucket name="{{ egi_byos_sk_01.usegalaxy_eu.bucket_name }}" use_reduced_redundancy="False" max_chunk_size="250" />
+            <connection host="byos-sk-api.vm.fedcloud.eu" port="443" is_secure="True" conn_path="" multipart="True"/>
+        </backend>
     </backends>
 </object_store>
