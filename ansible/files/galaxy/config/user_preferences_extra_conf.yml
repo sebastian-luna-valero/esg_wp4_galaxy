@@ -51,6 +51,7 @@ preferences:
           - ["Select the remote resources", None]
           - ["default - Galaxy will decide where to put your job", None]
           - ["EGI Italy - INFN-CLOUD-BARI", egi-bari]
+          - ["EGI Slovakia - IISAS-FedCloud", egi-iisas]
 
   ega_account:
     description: Your EGA (European Genome Archive) account
