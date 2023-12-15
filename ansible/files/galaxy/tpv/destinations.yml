@@ -144,4 +144,4 @@ destinations:
     max_accepted_gpus: 0
     scheduling:
       require:
-        - egi-pulsar
+        - egi-bari
